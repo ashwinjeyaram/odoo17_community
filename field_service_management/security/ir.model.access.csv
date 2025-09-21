@@ -87,3 +87,6 @@ access_fsm_close_call_wizard_manager,fsm.close.call.wizard.manager,model_fsm_clo
 access_fsm_call_attachment_wizard_user,fsm.call.attachment.wizard.user,model_fsm_call_attachment_wizard,group_fsm_user,1,1,1,1
 access_fsm_call_attachment_wizard_technician,fsm.call.attachment.wizard.technician,model_fsm_call_attachment_wizard,group_fsm_technician,1,1,1,1
 access_fsm_call_attachment_wizard_manager,fsm.call.attachment.wizard.manager,model_fsm_call_attachment_wizard,group_fsm_manager,1,1,1,1
+access_fsm_spare_report_wizard_user,fsm.spare.report.wizard.user,model_fsm_spare_report_wizard,group_fsm_user,1,1,1,1
+access_fsm_spare_report_wizard_technician,fsm.spare.report.wizard.technician,model_fsm_spare_report_wizard,group_fsm_technician,1,1,1,1
+access_fsm_spare_report_wizard_manager,fsm.spare.report.wizard.manager,model_fsm_spare_report_wizard,group_fsm_manager,1,1,1,1

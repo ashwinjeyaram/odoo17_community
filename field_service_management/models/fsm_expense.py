@@ -116,7 +116,13 @@ class FSMExpense(models.Model):
         """Set default values based on expense type"""
         if self.expense_type == 'travel':
             # Get default rate per km from configuration
-            self.rate_per_km = self.env.company.currency_id.compute(10, self.currency_id)  # Default rate
+            try:
+                if self.currency_id and self.env.company.currency_id:
+                    self.rate_per_km = self.env.company.currency_id.compute(10, self.currency_id)  # Default rate
+                else:
+                    self.rate_per_km = 10.0  # Fallback default rate
+            except:
+                self.rate_per_km = 10.0  # Fallback default rate
         else:
             self.distance_km = 0
             self.rate_per_km = 0
@@ -132,22 +138,24 @@ class FSMExpense(models.Model):
         self.ensure_one()
         if self.state != 'draft':
             raise UserError('Only draft expenses can be submitted!')
-        
-        if not self.attachment_ids and self.final_amount > 100:
-            raise ValidationError('Please attach supporting documents for expenses above 100!')
-        
+
+        # Only require attachments for high-value expenses that are not travel-related
+        if (not self.attachment_ids and self.final_amount > 500 and
+            self.expense_type not in ['travel']):
+            raise ValidationError('Please attach supporting documents for non-travel expenses above 500!')
+
         self.write({
             'state': 'submitted',
             'submitted_date': fields.Datetime.now()
         })
-        
+
         # Create activity for manager approval
         self.activity_schedule(
             'mail.mail_activity_data_todo',
             summary=f'Expense approval required: {self.name}',
             user_id=self.env.user.id  # TODO: Assign to manager
         )
-        
+
         self.message_post(body='Expense submitted for approval.')
     
     def action_approve(self):

@@ -9,6 +9,8 @@ class FSMTechnicianAssignmentWizard(models.TransientModel):
     
     call_id = fields.Many2one('fsm.call', string='Service Call', required=True)
     pincode = fields.Char(string='Pincode', required=True)
+    dealer_id = fields.Many2one('fsm.dealer', string='Dealer')
+    dealer_ids = fields.Many2many('fsm.dealer', string='Available Dealers')
     technician_id = fields.Many2one('fsm.technician', string='Technician')
     technician_ids = fields.Many2many('fsm.technician', string='Available Technicians')
     
@@ -25,17 +27,21 @@ class FSMTechnicianAssignmentWizard(models.TransientModel):
     @api.onchange('pincode')
     def _onchange_pincode(self):
         if self.pincode:
-            # Get available technicians for this pincode
+            # Get available technicians for this pincode first
             technician_pincodes = self.env['fsm.technician.pincode'].search([
                 ('pincode', '=', self.pincode),
                 ('active', '=', True),
                 ('technician_id.active', '=', True),
                 ('technician_id.state', 'in', ['available', 'busy'])
             ])
-            
+
             technicians = technician_pincodes.mapped('technician_id')
             self.technician_ids = [(6, 0, technicians.ids)]
-            
+
+            # Get dealers who have technicians in this pincode
+            dealers = technicians.mapped('dealer_id').filtered('active')
+            self.dealer_ids = [(6, 0, dealers.ids)]
+
             # Set default technician (with least active calls)
             if technicians:
                 technician_data = []
@@ -47,15 +53,45 @@ class FSMTechnicianAssignmentWizard(models.TransientModel):
                         'technician': tech,
                         'active_calls': len(active_calls)
                     })
-                
+
                 # Sort by active calls count
                 technician_data.sort(key=lambda x: x['active_calls'])
                 self.technician_id = technician_data[0]['technician'].id
             else:
                 self.technician_id = False
         else:
+            self.dealer_ids = [(5, 0, 0)]
             self.technician_ids = [(5, 0, 0)]
+            self.dealer_id = False
             self.technician_id = False
+
+    @api.onchange('dealer_id')
+    def _onchange_dealer_id(self):
+        if self.dealer_id:
+            # Get technicians for selected dealer and pincode
+            technicians = self.env['fsm.technician'].search([
+                ('dealer_id', '=', self.dealer_id.id),
+                ('active', '=', True),
+                ('state', 'in', ['available', 'busy'])
+            ])
+
+            # Filter by pincode service area
+            pincode_technicians = []
+            for tech in technicians:
+                tech_pincodes = tech.pincode_ids.mapped('pincode')
+                if self.pincode in tech_pincodes:
+                    pincode_technicians.append(tech.id)
+
+            self.technician_ids = [(6, 0, pincode_technicians)]
+
+            # Auto-select first available technician
+            if pincode_technicians:
+                self.technician_id = pincode_technicians[0]
+            else:
+                self.technician_id = False
+        else:
+            # Reset to all available technicians for pincode
+            self._onchange_pincode()
     
     def action_assign_technician(self):
         if not self.technician_id:

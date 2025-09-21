@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_spare_request_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Header -->
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <h2>Spare Request Report</h2>
+                                    <p class="text-muted">
+                                        From <strong t-esc="doc.date_from"/> to <strong t-esc="doc.date_to"/>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Filters Applied -->
+                            <div class="row mt-3 mb-3">
+                                <div class="col-12">
+                                    <h4>Applied Filters:</h4>
+                                    <div class="alert alert-info">
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td><strong>Date Range:</strong></td>
+                                                <td><span t-esc="doc.date_from"/> to <span t-esc="doc.date_to"/></td>
+                                            </tr>
+                                            <tr t-if="doc.technician_ids">
+                                                <td><strong>Technicians:</strong></td>
+                                                <td>
+                                                    <t t-foreach="doc.technician_ids" t-as="tech">
+                                                        <span t-esc="tech.name"/>
+                                                        <t t-if="not tech_last">, </t>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="doc.spare_ids">
+                                                <td><strong>Spare Parts:</strong></td>
+                                                <td>
+                                                    <t t-foreach="doc.spare_ids" t-as="spare">
+                                                        <span t-esc="spare.name"/>
+                                                        <t t-if="not spare_last">, </t>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="doc.state_filter != 'all'">
+                                                <td><strong>Status:</strong></td>
+                                                <td><span t-esc="dict(doc._fields['state_filter'].selection)[doc.state_filter]"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Grouped By:</strong></td>
+                                                <td><span t-esc="dict(doc._fields['group_by'].selection)[doc.group_by]"/></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Get spare requests data -->
+                            <t t-set="spare_requests" t-value="request.env['fsm.spare.request'].browse(data.get('request_ids', []))"/>
+
+                            <!-- Summary Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4>Summary</h4>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">Total Requests</h5>
+                                                    <h3 class="text-primary" t-esc="len(spare_requests)"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">Total Quantity</h5>
+                                                    <h3 class="text-success" t-esc="sum(spare_requests.mapped('pending_qty'))"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">Unique Technicians</h5>
+                                                    <h3 class="text-info" t-esc="len(spare_requests.mapped('technician_id'))"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">Unique Spare Parts</h5>
+                                                    <h3 class="text-warning" t-esc="len(spare_requests.mapped('spare_line_ids.spare_id'))"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Report Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4>Detailed Report</h4>
+
+                                    <!-- Group by Technician -->
+                                    <t t-if="doc.group_by == 'technician'">
+                                        <t t-set="grouped_data" t-value="{}"/>
+                                        <t t-foreach="spare_requests" t-as="req">
+                                            <t t-set="tech_name" t-value="req.technician_id.name or 'Unassigned'"/>
+                                            <t t-if="tech_name not in grouped_data">
+                                                <t t-set="grouped_data" t-value="grouped_data.update({tech_name: []}) or grouped_data"/>
+                                            </t>
+                                            <t t-set="temp_list" t-value="grouped_data[tech_name] + [req]"/>
+                                            <t t-set="grouped_data" t-value="grouped_data.update({tech_name: temp_list}) or grouped_data"/>
+                                        </t>
+
+                                        <t t-foreach="grouped_data.items()" t-as="group_item">
+                                            <t t-set="group_name" t-value="group_item[0]"/>
+                                            <t t-set="group_requests" t-value="group_item[1]"/>
+
+                                            <div class="mt-4">
+                                                <h5 class="bg-light p-2">Technician: <span t-esc="group_name"/></h5>
+                                                <table class="table table-sm table-bordered">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Request #</th>
+                                                            <th>Service Call</th>
+                                                            <th>Customer</th>
+                                                            <th>Request Date</th>
+                                                            <th>Status</th>
+                                                            <th>Pending Qty</th>
+                                                            <th>Spare Parts</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="group_requests" t-as="request_item">
+                                                            <tr>
+                                                                <td t-esc="request_item.name"/>
+                                                                <td t-esc="request_item.call_id.name if request_item.call_id else '-'"/>
+                                                                <td t-esc="request_item.partner_id.name if request_item.partner_id else '-'"/>
+                                                                <td t-esc="request_item.request_date.strftime('%Y-%m-%d') if request_item.request_date else '-'"/>
+                                                                <td>
+                                                                    <span t-if="request_item.state == 'received'" class="badge badge-success"
+                                                                          t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                                    <span t-elif="request_item.state in ['draft', 'requested']" class="badge badge-warning"
+                                                                          t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                                    <span t-else="" class="badge badge-info"
+                                                                          t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                                </td>
+                                                                <td t-esc="request_item.pending_qty"/>
+                                                                <td>
+                                                                    <t t-foreach="request_item.spare_line_ids" t-as="line">
+                                                                        <span t-esc="line.spare_id.name"/> (<span t-esc="line.quantity"/>)
+                                                                        <t t-if="not line_last"><br/></t>
+                                                                    </t>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </t>
+                                    </t>
+
+                                    <!-- Group by Status -->
+                                    <t t-if="doc.group_by == 'status'">
+                                        <t t-set="status_groups" t-value="{}"/>
+                                        <t t-foreach="spare_requests" t-as="req">
+                                            <t t-set="status_name" t-value="dict(req._fields['state'].selection)[req.state]"/>
+                                            <t t-if="status_name not in status_groups">
+                                                <t t-set="status_groups" t-value="status_groups.update({status_name: []}) or status_groups"/>
+                                            </t>
+                                            <t t-set="temp_list" t-value="status_groups[status_name] + [req]"/>
+                                            <t t-set="status_groups" t-value="status_groups.update({status_name: temp_list}) or status_groups"/>
+                                        </t>
+
+                                        <t t-foreach="status_groups.items()" t-as="status_item">
+                                            <t t-set="status_name" t-value="status_item[0]"/>
+                                            <t t-set="status_requests" t-value="status_item[1]"/>
+
+                                            <div class="mt-4">
+                                                <h5 class="bg-light p-2">Status: <span t-esc="status_name"/></h5>
+                                                <table class="table table-sm table-bordered">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Request #</th>
+                                                            <th>Technician</th>
+                                                            <th>Service Call</th>
+                                                            <th>Customer</th>
+                                                            <th>Request Date</th>
+                                                            <th>Pending Qty</th>
+                                                            <th>Spare Parts</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="status_requests" t-as="request_item">
+                                                            <tr>
+                                                                <td t-esc="request_item.name"/>
+                                                                <td t-esc="request_item.technician_id.name if request_item.technician_id else 'Unassigned'"/>
+                                                                <td t-esc="request_item.call_id.name if request_item.call_id else '-'"/>
+                                                                <td t-esc="request_item.partner_id.name if request_item.partner_id else '-'"/>
+                                                                <td t-esc="request_item.request_date.strftime('%Y-%m-%d') if request_item.request_date else '-'"/>
+                                                                <td t-esc="request_item.pending_qty"/>
+                                                                <td>
+                                                                    <t t-foreach="request_item.spare_line_ids" t-as="line">
+                                                                        <span t-esc="line.spare_id.name"/> (<span t-esc="line.quantity"/>)
+                                                                        <t t-if="not line_last"><br/></t>
+                                                                    </t>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </t>
+                                    </t>
+
+                                    <!-- Default table format for other group by options -->
+                                    <t t-if="doc.group_by not in ['technician', 'status']">
+                                        <table class="table table-sm table-bordered">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Request #</th>
+                                                    <th>Technician</th>
+                                                    <th>Service Call</th>
+                                                    <th>Customer</th>
+                                                    <th>Request Date</th>
+                                                    <th>Status</th>
+                                                    <th>Pending Qty</th>
+                                                    <th>Spare Parts</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="spare_requests" t-as="request_item">
+                                                    <tr>
+                                                        <td t-esc="request_item.name"/>
+                                                        <td t-esc="request_item.technician_id.name if request_item.technician_id else 'Unassigned'"/>
+                                                        <td t-esc="request_item.call_id.name if request_item.call_id else '-'"/>
+                                                        <td t-esc="request_item.partner_id.name if request_item.partner_id else '-'"/>
+                                                        <td t-esc="request_item.request_date.strftime('%Y-%m-%d') if request_item.request_date else '-'"/>
+                                                        <td>
+                                                            <span t-if="request_item.state == 'received'" class="badge badge-success"
+                                                                  t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                            <span t-elif="request_item.state in ['draft', 'requested']" class="badge badge-warning"
+                                                                  t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                            <span t-else="" class="badge badge-info"
+                                                                  t-esc="dict(request_item._fields['state'].selection)[request_item.state]"/>
+                                                        </td>
+                                                        <td t-esc="request_item.pending_qty"/>
+                                                        <td>
+                                                            <t t-foreach="request_item.spare_line_ids" t-as="line">
+                                                                <span t-esc="line.spare_id.name"/> (<span t-esc="line.quantity"/>)
+                                                                <t t-if="not line_last"><br/></t>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="row mt-4">
+                                <div class="col-12 text-center">
+                                    <p class="text-muted">
+                                        Report generated on <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

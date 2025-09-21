@@ -322,6 +322,8 @@
                     <field name="technician_id"/>
                     <field name="partner_id"/>
                     <field name="request_date"/>
+                    <field name="pending_qty"/>
+                    <field name="total_spare_count"/>
                     <field name="state" widget="badge"/>
                 </tree>
             </field>
@@ -396,11 +398,65 @@
             </field>
         </record>
 
+        <!-- Search View for Spare Request -->
+        <record id="view_fsm_spare_request_search" model="ir.ui.view">
+            <field name="name">fsm.spare.request.search</field>
+            <field name="model">fsm.spare.request</field>
+            <field name="arch" type="xml">
+                <search string="Search Spare Requests">
+                    <field name="name"/>
+                    <field name="call_id"/>
+                    <field name="technician_id"/>
+                    <field name="partner_id"/>
+                    <field name="spare_line_ids" string="Spare Parts" filter_domain="[('spare_line_ids.spare_id.name', 'ilike', self)]"/>
+
+                    <!-- Status Filters -->
+                    <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                    <filter name="requested" string="Requested" domain="[('state', '=', 'requested')]"/>
+                    <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                    <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
+                    <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
+                    <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                    <separator/>
+
+                    <!-- Pending Quantity Filters -->
+                    <filter name="has_pending_qty" string="Has Pending Quantity" domain="[('pending_qty', '>', 0)]"/>
+                    <filter name="no_pending_qty" string="No Pending Quantity" domain="[('pending_qty', '=', 0)]"/>
+                    <separator/>
+
+                    <!-- Date Filters -->
+                    <filter name="today" string="Today" domain="[('request_date', '>=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')), ('request_date', '&lt;=', datetime.datetime.now().strftime('%Y-%m-%d 23:59:59'))]"/>
+                    <filter name="this_week" string="This Week" domain="[('request_date', '>=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')), ('request_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                    <filter name="this_month" string="This Month" domain="[('request_date', '>=', datetime.datetime.now().strftime('%Y-%m-01')), ('request_date', '&lt;=', (datetime.datetime.now().replace(day=1) + datetime.timedelta(days=32)).replace(day=1) - datetime.timedelta(days=1))]"/>
+                    <separator/>
+
+                    <!-- Group By Options -->
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_request_date" string="Request Date" context="{'group_by': 'request_date:month'}"/>
+                        <filter name="group_by_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                        <filter name="group_by_status" string="Status" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_call" string="Service Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_by_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                        <filter name="group_by_pending_qty" string="Pending Quantity" context="{'group_by': 'pending_qty'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="action_fsm_spare_request" model="ir.actions.act_window">
             <field name="name">Spare Requests</field>
             <field name="res_model">fsm.spare.request</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_spare_request_search"/>
             <field name="context">{'search_default_draft': 1, 'search_default_requested': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first spare request
+                </p>
+                <p>
+                    Manage spare part requests for field service operations. Track status and quantities.
+                </p>
+            </field>
         </record>
     </data>
 </odoo>

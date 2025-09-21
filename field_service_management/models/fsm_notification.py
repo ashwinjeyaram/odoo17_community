@@ -45,7 +45,11 @@ class FSMNotificationTransaction(models.Model):
         ('pending_customer', 'Pending Customer'),
         ('resolved', 'Resolved'),
         ('closed', 'Closed'),
-        ('cancelled', 'Cancelled')
+        ('cancelled', 'Cancelled'),
+        ('requested', 'Requested'),
+        ('approved', 'Approved'),
+        ('issued', 'Issued'),
+        ('received', 'Received')
     ], string='Old Status')
     
     new_status = fields.Selection([
@@ -57,7 +61,11 @@ class FSMNotificationTransaction(models.Model):
         ('pending_customer', 'Pending Customer'),
         ('resolved', 'Resolved'),
         ('closed', 'Closed'),
-        ('cancelled', 'Cancelled')
+        ('cancelled', 'Cancelled'),
+        ('requested', 'Requested'),
+        ('approved', 'Approved'),
+        ('issued', 'Issued'),
+        ('received', 'Received')
     ], string='New Status')
     
     # OTP Fields

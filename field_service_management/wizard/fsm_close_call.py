@@ -43,15 +43,13 @@ class FSMCloseCallWizard(models.TransientModel):
             
             # Close the call
             self.call_id.action_close()
-            
+
+            # Show notification and close wizard
             return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Success',
-                    'message': 'Service call closed successfully!',
-                    'type': 'success',
-                    'sticky': False,
+                'type': 'ir.actions.act_window_close',
+                'effect': {
+                    'type': 'rainbow_man',
+                    'message': 'Service call closed successfully!'
                 }
             }
         else:

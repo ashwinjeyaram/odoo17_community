@@ -75,7 +75,7 @@
                             <field name="tag_ids" widget="many2many_tags"/>
                         </group>
                         <group string="Customer Information">
-                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="partner_id" />
                             <field name="phone"/>
                             <field name="mobile"/>
                             <field name="email"/>
@@ -83,10 +83,11 @@
                     </group>
                     <group>
                         <group string="Location Information">
-                            <field name="fsm_state_id" options="{'no_create': True}" string="State"/>
-                            <field name="fsm_district_id" options="{'no_create': True}" domain="[('state_id', '=', fsm_state_id)]" string="District"/>
-                            <field name="fsm_pincode_id" options="{'no_create': True}" domain="[('district_id', '=', fsm_district_id)]" string="Pincode"/>
-                            <field name="fsm_area_id" options="{'no_create': True}" domain="[('pincode_id', '=', fsm_pincode_id)]" string="Area"/>
+                            <field name="pincode"/>
+                            <field name="fsm_state_id" options="{'no_create': True}"/>
+                            <field name="fsm_district_id" options="{'no_create': True}" domain="[('state_id', '=', fsm_state_id)]"/>
+                            <field name="fsm_pincode_id" options="{'no_create': True}" domain="[('district_id', '=', fsm_district_id)]"/>
+                            <field name="fsm_area_id" options="{'no_create': True}" domain="[('pincode_id', '=', fsm_pincode_id)]"/>
                         </group>
                         <group string="Warranty Information">
                             <field name="warranty_status"/>
@@ -160,6 +161,12 @@
                                     <field name="is_paid"/>
                                 </group>
                             </group>
+                            <group string="OTP Information" invisible="state != 'resolved'">
+                                <group>
+                                    <field name="current_otp"/>
+                                    <field name="otp_generated_date"/>
+                                </group>
+                            </group>
                         </page>
                         <page string="Spare Requests">
                             <field name="spare_request_ids" readonly="1">
@@ -230,6 +237,7 @@
                   decoration-success="state=='closed'" decoration-muted="state=='cancelled'">
                 <field name="name"/>
                 <field name="partner_id"/>
+                <field name="pincode"/>
                 <field name="model_name"/>
                 <field name="warranty_type"/>
                 <field name="technician_id"/>
@@ -280,6 +288,9 @@
                                     <strong>Technician:</strong> <field name="technician_id"/>
                                 </div>
                                 <div>
+                                    <strong>Area:</strong> <field name="pincode"/>
+                                </div>
+                                <div>
                                     <strong>Warranty:</strong> <field name="warranty_type"/>
                                 </div>
                                 <div t-if="record.attachment_ids.raw_value.length">
@@ -311,6 +322,7 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="mobile"/>
+                <field name="pincode"/>
                 <field name="technician_id"/>
                 <field name="dealer_id"/>
                 <field name="nature_complaint"/>
@@ -337,6 +349,7 @@
                     <filter name="group_by_dealer" string="Dealer" context="{'group_by': 'dealer_id'}"/>
                     <filter name="group_by_priority" string="Priority" context="{'group_by': 'priority'}"/>
                     <filter name="group_by_date" string="Call Date" context="{'group_by': 'call_date:day'}"/>
+                    <filter name="group_by_area" string="Pincode" context="{'group_by': 'pincode'}"/>
                     <filter name="group_by_warranty_type" string="Warranty Type" context="{'group_by': 'warranty_type'}"/>
                 </group>
             </search>

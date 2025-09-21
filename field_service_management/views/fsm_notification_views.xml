@@ -34,14 +34,15 @@
                                 <field name="display_name"/>
                             </h1>
                         </div>
+
                         <group>
-                            <group>
+                            <group string="Related Records">
                                 <field name="call_id"/>
                                 <field name="spare_request_id"/>
                                 <field name="technician_id"/>
                                 <field name="service_partner_id"/>
                             </group>
-                            <group>
+                            <group string="Notification Details">
                                 <field name="notification_type"/>
                                 <field name="old_status"/>
                                 <field name="new_status"/>
@@ -49,15 +50,17 @@
                                 <field name="user_id"/>
                             </group>
                         </group>
-                        <group>
-                            <group string="OTP Information" invisible="notification_type not in ['otp_generated', 'otp_verified']">
+
+                        <group string="OTP Information" invisible="notification_type not in ['otp_generated', 'otp_verified']">
+                            <group>
                                 <field name="otp_code" invisible="notification_type != 'otp_generated'"/>
                                 <field name="otp_verified" invisible="notification_type != 'otp_generated'"/>
                                 <field name="otp_generated_date" invisible="notification_type != 'otp_generated'"/>
                             </group>
                         </group>
-                        <group string="Description">
-                            <field name="description" nolabel="1"/>
+
+                        <group string="Additional Information">
+                            <field name="description" nolabel="1" placeholder="Enter notification description..."/>
                         </group>
                     </sheet>
                 </form>

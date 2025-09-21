@@ -19,7 +19,8 @@ class FSMCall(models.Model):
     ], string='Service Type', default='inservice', required=True)
     
     # Customer Information
-    partner_id = fields.Many2one('res.partner', string='Customer', required=True, tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Customer', required=True, tracking=True,
+                                options="{'create': True, 'create_edit': True}")
     phone = fields.Char(string='Phone', related='partner_id.phone', readonly=False, store=True)
     mobile = fields.Char(string='Mobile', related='partner_id.mobile', readonly=False, store=True)
     email = fields.Char(string='Email', related='partner_id.email', readonly=False, store=True)
@@ -33,10 +34,11 @@ class FSMCall(models.Model):
     country_id = fields.Many2one('res.country', string='Country', related='partner_id.country_id', readonly=False, store=True)
     
     # Location Master Fields
-    fsm_state_id = fields.Many2one('fsm.state', string='State')
-    fsm_district_id = fields.Many2one('fsm.district', string='District')
-    fsm_pincode_id = fields.Many2one('fsm.pincode', string='Pincode')
-    fsm_area_id = fields.Many2one('fsm.area', string='Area')
+    fsm_state_id = fields.Many2one('fsm.state', string='State Master')
+    fsm_district_id = fields.Many2one('fsm.district', string='District Master')
+    fsm_pincode_id = fields.Many2one('fsm.pincode', string='Pincode Master')
+    fsm_area_id = fields.Many2one('fsm.area', string='Area Master')
+    pincode = fields.Char(string='Service Pincode', required=True)
     
     # Product Information
     product_id = fields.Many2one('product.template', string='Product')
@@ -137,6 +139,10 @@ class FSMCall(models.Model):
     spare_charge = fields.Monetary(string='Spare Parts Charge', currency_field='currency_id')
     total_charge = fields.Monetary(string='Total Charge', compute='_compute_total_charge', store=True)
     is_paid = fields.Boolean(string='Paid', default=False)
+
+    # OTP Information
+    current_otp = fields.Char(string='Current OTP', readonly=True, help="Generated OTP for closing this call")
+    otp_generated_date = fields.Datetime(string='OTP Generated Date', readonly=True)
     
     # Other Fields
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
@@ -190,9 +196,8 @@ class FSMCall(models.Model):
             vals['name'] = f"{prefix}-{year}{month}-{new_number}"
         
         # Auto-assign technician if not specified
-        if not vals.get('technician_id') and vals.get('fsm_pincode_id'):
-            pincode = self.env['fsm.pincode'].browse(vals.get('fsm_pincode_id'))
-            technician = self._get_available_technician(pincode.pincode)
+        if not vals.get('technician_id') and vals.get('pincode'):
+            technician = self._get_available_technician(vals.get('pincode'))
             if technician:
                 vals['technician_id'] = technician.id
                 vals['auto_assigned'] = True
@@ -312,13 +317,12 @@ class FSMCall(models.Model):
         
         if not self.technician_id:
             # Try auto-assignment
-            if self.fsm_pincode_id:
-                technician = self._get_available_technician(self.fsm_pincode_id.pincode)
-                if not technician:
-                    raise ValidationError(f"No available technician for pincode {self.fsm_pincode_id.pincode}")
-                self.technician_id = technician
-                self.service_partner_id = technician.service_partner_id
-                self.auto_assigned = True
+            technician = self._get_available_technician(self.pincode)
+            if not technician:
+                raise ValidationError(f"No available technician for pincode {self.pincode}")
+            self.technician_id = technician
+            self.service_partner_id = technician.service_partner_id
+            self.auto_assigned = True
         
         old_state = self.state
         self.write({
@@ -447,7 +451,13 @@ class FSMCall(models.Model):
         })
         # Generate OTP
         otp = notification.generate_otp()
-        
+
+        # Update call with OTP information
+        self.write({
+            'current_otp': otp,
+            'otp_generated_date': fields.Datetime.now()
+        })
+
         # Send message with OTP
         self.message_post(
             body=f"OTP {otp} generated for closing this service call. Technician must enter this code to close the call."
@@ -595,7 +605,9 @@ class FSMCall(models.Model):
             self.fsm_district_id = self.fsm_pincode_id.district_id
             self.fsm_state_id = self.fsm_pincode_id.state_id
             self.fsm_area_id = False
+            self.pincode = self.fsm_pincode_id.pincode
         else:
+            self.pincode = ''
             self.fsm_area_id = False
 
     @api.onchange('fsm_area_id')
@@ -604,6 +616,7 @@ class FSMCall(models.Model):
             self.fsm_pincode_id = self.fsm_area_id.pincode_id
             self.fsm_district_id = self.fsm_area_id.district_id
             self.fsm_state_id = self.fsm_area_id.state_id
+            self.pincode = self.fsm_pincode_id.pincode
         else:
             # Don't clear the pincode if area is deselected
             pass
@@ -612,8 +625,7 @@ class FSMCall(models.Model):
     def _onchange_partner_id(self):
         """Auto-fill address from partner"""
         if self.partner_id:
-            # We don't auto-fill the pincode field anymore since it's been removed
-            pass
+            self.pincode = self.partner_id.zip
 
             
     @api.onchange('product_id')

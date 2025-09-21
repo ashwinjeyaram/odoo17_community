@@ -189,7 +189,11 @@ class FSMSpareRequest(models.Model):
     
     # Notes
     notes = fields.Text(string='Notes')
-    
+
+    # Computed fields for filtering
+    pending_qty = fields.Float(string='Pending Quantity', compute='_compute_pending_qty', store=True)
+    total_spare_count = fields.Integer(string='Total Spare Count', compute='_compute_total_spare_count', store=True)
+
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     
     @api.model
@@ -197,6 +201,19 @@ class FSMSpareRequest(models.Model):
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('fsm.spare.request') or 'New'
         return super(FSMSpareRequest, self).create(vals)
+
+    @api.depends('spare_line_ids', 'spare_line_ids.quantity', 'state')
+    def _compute_pending_qty(self):
+        for record in self:
+            if record.state in ['draft', 'requested', 'approved']:
+                record.pending_qty = sum(record.spare_line_ids.mapped('quantity'))
+            else:
+                record.pending_qty = 0.0
+
+    @api.depends('spare_line_ids')
+    def _compute_total_spare_count(self):
+        for record in self:
+            record.total_spare_count = len(record.spare_line_ids)
     
     def action_request(self):
         self.ensure_one()

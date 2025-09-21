@@ -74,6 +74,7 @@
         # Wizards
         'wizard/fsm_assign_technician_views.xml',
         'wizard/fsm_spare_request_views.xml',
+        'wizard/fsm_spare_report_wizard_views.xml',
         'wizard/fsm_close_call_views.xml',
         'wizard/fsm_technician_assignment_views.xml',
         'wizard/fsm_call_attachment_views.xml',
@@ -81,6 +82,8 @@
         # Reports
         'report/fsm_service_report_views.xml',
         'report/fsm_service_report_template.xml',
+        'report/fsm_spare_report_views.xml',
+        'report/fsm_spare_report_template.xml',
     ],
     'demo': [],
     'installable': True,

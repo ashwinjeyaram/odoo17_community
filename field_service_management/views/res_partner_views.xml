@@ -7,11 +7,104 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
+                <!-- Add Smart Buttons -->
                 <xpath expr="//div[@name='button_box']" position="inside">
-                    <button name="action_view_service_calls" type="object" class="oe_stat_button" icon="fa-wrench" 
+                    <button name="action_view_service_calls" type="object" class="oe_stat_button" icon="fa-wrench"
                             context="{'default_partner_id': active_id}">
                         <field name="fsm_call_count" widget="statinfo" string="Service Calls"/>
                     </button>
+                </xpath>
+
+                <!-- Add FSM Notebook Page -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Field Service Management" name="fsm_page">
+                        <group>
+                            <group string="FSM Classification">
+                                <field name="is_fsm_customer"/>
+                                <field name="is_service_partner"/>
+                                <field name="is_dealer"/>
+                            </group>
+                            <group string="Service Statistics">
+                                <field name="avg_service_rating" widget="float" digits="[5,2]"/>
+                                <field name="total_service_calls"/>
+                                <field name="pending_service_calls"/>
+                            </group>
+                        </group>
+
+                        <group string="Service Preferences">
+                            <group>
+                                <field name="preferred_technician_id"/>
+                                <field name="preferred_service_time"/>
+                            </group>
+                            <group>
+                                <field name="service_notes" nolabel="1" placeholder="Enter service-related notes and preferences..."/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Service Calls" name="service_calls">
+                                <field name="fsm_call_ids" nolabel="1">
+                                    <tree string="Service Calls" create="false" edit="false">
+                                        <field name="name"/>
+                                        <field name="call_date"/>
+                                        <field name="technician_id"/>
+                                        <field name="priority"/>
+                                        <field name="state"/>
+                                        <field name="service_charge"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Service Partners" name="service_partners" invisible="not fsm_service_partner_ids">
+                                <field name="fsm_service_partner_ids" nolabel="1">
+                                    <tree string="Service Partners" create="false" edit="false">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="contract_status"/>
+                                        <field name="mobile"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Technicians" name="technicians" invisible="not fsm_technician_ids">
+                                <field name="fsm_technician_ids" nolabel="1">
+                                    <tree string="Technicians" create="false" edit="false">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="mobile"/>
+                                        <field name="skill_ids" widget="many2many_tags"/>
+                                        <field name="state"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Service Contracts" name="service_contracts" invisible="not service_contract_ids">
+                                <field name="service_contract_ids" nolabel="1">
+                                    <tree string="Service Contracts" create="false" edit="false">
+                                        <field name="name"/>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
+                                        <field name="contract_type"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="Feedback" name="feedback" invisible="not fsm_feedback_ids">
+                                <field name="fsm_feedback_ids" nolabel="1">
+                                    <tree string="Customer Feedback" create="false" edit="false">
+                                        <field name="call_id"/>
+                                        <field name="technician_id"/>
+                                        <field name="rating"/>
+                                        <field name="submitted_date"/>
+                                        <field name="satisfaction"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </page>
                 </xpath>
             </field>
         </record>
