@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_fsm_spare_tree" model="ir.ui.view">
+            <field name="name">fsm.spare.tree</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <tree string="Spare Parts" decoration-warning="qty_available &lt; min_stock_qty">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="product_id"/>
+                    <field name="category_id"/>
+                    <field name="brand"/>
+                    <field name="qty_available"/>
+                    <field name="uom_id"/>
+                    <field name="list_price" widget="monetary"/>
+                    <field name="standard_price" widget="monetary"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="min_stock_qty"/>
+                    <field name="warehouse_id"/>
+                    <field name="active" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Form View -->
+        <record id="view_fsm_spare_form" model="ir.ui.view">
+            <field name="name">fsm.spare.form</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <form string="Spare Part">
+                    <header>
+                        <button name="action_check_stock" string="Check Stock" type="object" class="btn-primary"/>
+                    </header>
+                    <sheet>
+                        <!-- <div class="oe_button_box" name="button_box">
+                            <button name="action_view_stock_quants" type="object" class="oe_stat_button" icon="fa-cubes">
+                                <field name="qty_available" widget="statinfo" string="Available"/>
+                            </button>
+                            <button name="action_view_requests" type="object" class="oe_stat_button" icon="fa-list">
+                                <field name="request_count" widget="statinfo" string="Requests"/>
+                            </button>
+                        </div> -->
+                        <widget name="web_ribbon" title="Inactive" bg_color="bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Part Name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Basic Information">
+                                <field name="code"/>
+                                <field name="product_id" options="{'no_create': True}"/>
+                                <field name="category_id"/>
+                                <field name="brand"/>
+                                <field name="active"/>
+                            </group>
+                            <group string="Classification">
+                                <field name="uom_id"/>
+                                <field name="warranty_type"/>
+                                <field name="warranty_duration" invisible="warranty_type == 'none'"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Stock Information">
+                                <group>
+                                    <group string="Current Stock">
+                                        <field name="qty_available"/>
+                                        <field name="warehouse_id"/>
+                                        <field name="location_id"/>
+                                    </group>
+                                    <group string="Stock Control">
+                                        <field name="min_stock_qty"/>
+                                        <field name="reorder_qty"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Pricing">
+                                <group>
+                                    <group>
+                                        <field name="list_price" widget="monetary"/>
+                                        <field name="standard_price" widget="monetary"/>
+                                        <field name="currency_id" invisible="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Compatibility">
+                                <field name="model_compatibility" placeholder="List compatible models..."/>
+                            </page>
+                            <page string="Statistics">
+                                <group>
+                                    <group>
+                                        <field name="request_count"/>
+                                        <field name="return_count"/>
+                                    </group>
+                                    <group>
+                                        <field name="defect_rate" widget="percentage"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Request Lines">
+                                <field name="spare_request_line_ids" readonly="1">
+                                    <tree>
+                                        <field name="request_id"/>
+                                        <field name="quantity"/>
+                                        <field name="unit_price" widget="monetary"/>
+                                        <field name="subtotal" widget="monetary"/>
+                                        <field name="is_returned"/>
+                                        <field name="is_defective"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Kanban View -->
+        <record id="view_fsm_spare_kanban" model="ir.ui.view">
+            <field name="name">fsm.spare.kanban</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="category_id">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="product_id"/>
+                    <field name="qty_available"/>
+                    <field name="min_stock_qty"/>
+                    <field name="list_price"/>
+                    <field name="currency_id"/>
+                    <field name="brand"/>
+                    <field name="category_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('product.product', 'image_128', record.product_id.raw_value)" alt="Product"/>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="text-muted">
+                                        Code: <field name="code"/>
+                                    </div>
+                                    <div t-if="record.brand.raw_value">
+                                        Brand: <field name="brand"/>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <span t-if="record.qty_available.raw_value &lt; record.min_stock_qty.raw_value" class="badge badge-danger">Low Stock</span>
+                                            <span t-else="" class="badge badge-success">In Stock</span>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <strong><field name="list_price" widget="monetary"/></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- Search View -->
+        <record id="view_fsm_spare_search" model="ir.ui.view">
+            <field name="name">fsm.spare.search</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <search string="Search Spare Parts">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="product_id"/>
+                    <field name="category_id"/>
+                    <field name="brand"/>
+                    <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter name="low_stock" string="Low Stock" domain="[('qty_available', '&lt;', 'min_stock_qty')]"/>
+                    <filter name="out_of_stock" string="Out of Stock" domain="[('qty_available', '=', 0)]"/>
+                    <filter name="in_stock" string="In Stock" domain="[('qty_available', '&gt;', 0)]"/>
+                    <separator/>
+                    <filter name="warranty_limited" string="Limited Warranty" domain="[('warranty_type', '=', 'limited')]"/>
+                    <filter name="warranty_full" string="Full Warranty" domain="[('warranty_type', '=', 'full')]"/>
+                    <filter name="no_warranty" string="No Warranty" domain="[('warranty_type', '=', 'none')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_category" string="Category" context="{'group_by': 'category_id'}"/>
+                        <filter name="group_by_brand" string="Brand" context="{'group_by': 'brand'}"/>
+                        <filter name="group_by_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                        <filter name="group_by_warranty" string="Warranty Type" context="{'group_by': 'warranty_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- Pivot View -->
+        <record id="view_fsm_spare_pivot" model="ir.ui.view">
+            <field name="name">fsm.spare.pivot</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <pivot string="Spare Parts Analysis">
+                    <field name="category_id" type="row"/>
+                    <field name="brand" type="row"/>
+                    <field name="warranty_type" type="col"/>
+                    <field name="qty_available" type="measure"/>
+                    <field name="list_price" type="measure"/>
+                    <field name="request_count" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        
+        <!-- Graph View -->
+        <record id="view_fsm_spare_graph" model="ir.ui.view">
+            <field name="name">fsm.spare.graph</field>
+            <field name="model">fsm.spare</field>
+            <field name="arch" type="xml">
+                <graph string="Spare Parts Stock Analysis" type="bar">
+                    <field name="category_id"/>
+                    <field name="qty_available" type="measure"/>
+                    <field name="request_count" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        
+        <!-- Action -->
+        <record id="action_fsm_spare" model="ir.actions.act_window">
+            <field name="name">Spare Parts</field>
+            <field name="res_model">fsm.spare</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph</field>
+            <field name="search_view_id" ref="view_fsm_spare_search"/>
+            <field name="context">{'search_default_active': 1, 'search_default_in_stock': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first spare part
+                </p>
+                <p>
+                    Manage spare parts inventory for field service operations. Track stock levels, pricing, and compatibility.
+                </p>
+            </field>
+        </record>
+
+        <!-- Spare Category Views -->
+        <record id="view_fsm_spare_category_tree" model="ir.ui.view">
+            <field name="name">fsm.spare.category.tree</field>
+            <field name="model">fsm.spare.category</field>
+            <field name="arch" type="xml">
+                <tree string="Spare Part Categories">
+                    <field name="complete_name"/>
+                    <field name="spare_count"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_fsm_spare_category_form" model="ir.ui.view">
+            <field name="name">fsm.spare.category.form</field>
+            <field name="model">fsm.spare.category</field>
+            <field name="arch" type="xml">
+                <form string="Spare Part Category">
+                    <sheet>
+                        <!-- <div class="oe_button_box" name="button_box">
+                            <button name="action_view_spare_parts" type="object" class="oe_stat_button" icon="fa-cogs">
+                                <field name="spare_count" widget="statinfo" string="Spare Parts"/>
+                            </button>
+                        </div> -->
+                        <group>
+                            <field name="name"/>
+                            <field name="parent_id"/>
+                            <field name="active"/>
+                        </group>
+                        <notebook>
+                            <page string="Child Categories">
+                                <field name="child_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="spare_count"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Spare Parts">
+                                <field name="spare_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="qty_available"/>
+                                        <field name="list_price" widget="monetary"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_fsm_spare_category" model="ir.actions.act_window">
+            <field name="name">Spare Part Categories</field>
+            <field name="res_model">fsm.spare.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Spare Request Views -->
+        <record id="view_fsm_spare_request_tree" model="ir.ui.view">
+            <field name="name">fsm.spare.request.tree</field>
+            <field name="model">fsm.spare.request</field>
+            <field name="arch" type="xml">
+                <tree string="Spare Requests" decoration-info="state=='draft'" decoration-warning="state=='requested'" decoration-success="state=='received'">
+                    <field name="name"/>
+                    <field name="call_id"/>
+                    <field name="technician_id"/>
+                    <field name="partner_id"/>
+                    <field name="request_date"/>
+                    <field name="state" widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_fsm_spare_request_form" model="ir.ui.view">
+            <field name="name">fsm.spare.request.form</field>
+            <field name="model">fsm.spare.request</field>
+            <field name="arch" type="xml">
+                <form string="Spare Request">
+                    <header>
+                        <button name="action_request" string="Submit Request" type="object" class="btn-primary" 
+                                invisible="state != 'draft'"/>
+                        <button name="action_approve" string="Approve" type="object" class="btn-primary"
+                                invisible="state != 'requested'"/>
+                        <button name="action_issue" string="Issue" type="object" class="btn-primary"
+                                invisible="state != 'approved'"/>
+                        <button name="action_receive" string="Receive" type="object" class="btn-success"
+                                invisible="state != 'issued'"/>
+                        <button name="action_cancel" string="Cancel" type="object"
+                                invisible="state in ['received', 'returned', 'cancelled']"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,requested,approved,issued,received"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_id" options="{'no_create': True}"/>
+                                <field name="technician_id"/>
+                                <field name="partner_id"/>
+                            </group>
+                            <group>
+                                <field name="request_date"/>
+                                <field name="approved_date" invisible="state in ['draft', 'requested']"/>
+                                <field name="approved_by" invisible="state in ['draft', 'requested']"/>
+                                <field name="issued_date" invisible="state in ['draft', 'requested', 'approved']"/>
+                                <field name="received_date" invisible="state != 'received'"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Spare Parts">
+                                <field name="spare_line_ids">
+                                    <tree editable="bottom">
+                                        <field name="spare_id"/>
+                                        <field name="product_id"/>
+                                        <field name="quantity"/>
+                                        <field name="uom_id"/>
+                                        <field name="unit_price" widget="monetary"/>
+                                        <field name="subtotal" widget="monetary"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="is_returned"/>
+                                        <field name="is_defective"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Additional notes..."/>
+                                <field name="rejection_reason" invisible="state != 'cancelled'"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_fsm_spare_request" model="ir.actions.act_window">
+            <field name="name">Spare Requests</field>
+            <field name="res_model">fsm.spare.request</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_draft': 1, 'search_default_requested': 1}</field>
+        </record>
+    </data>
+</odoo>

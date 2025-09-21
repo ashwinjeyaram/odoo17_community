@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- FSM Call Attachment Wizard Form View -->
+        <record id="view_fsm_call_attachment_wizard_form" model="ir.ui.view">
+            <field name="name">fsm.call.attachment.wizard.form</field>
+            <field name="model">fsm.call.attachment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Add Attachments">
+                    <group>
+                        <field name="call_id" readonly="1"/>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </group>
+                    <footer>
+                        <button name="action_add_attachments" string="Add Attachments" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- FSM Call Attachment Wizard Action -->
+        <record id="action_fsm_call_attachment_wizard" model="ir.actions.act_window">
+            <field name="name">Add Attachments</field>
+            <field name="res_model">fsm.call.attachment.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_call_id': active_id}</field>
+        </record>
+    </data>
+</odoo>

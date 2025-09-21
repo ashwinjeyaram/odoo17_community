@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    
+        <!-- Form View -->
+    <record id="view_fsm_technician_form" model="ir.ui.view">
+        <field name="name">fsm.technician.form</field>
+        <field name="model">fsm.technician</field>
+        <field name="arch" type="xml">
+            <form string="Technician">
+                <header>
+                    <button name="action_set_available" string="Set Available" type="object" 
+                            invisible="state == 'available'"/>
+                    <button name="action_set_busy" string="Set Busy" type="object"
+                            invisible="state == 'busy'"/>
+                    <button name="action_set_offline" string="Set Offline" type="object"
+                            invisible="state == 'offline'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_fsm_call)d" type="action" class="oe_stat_button" icon="fa-wrench"
+                                context="{'search_default_technician_id': id}">
+                            <div class="o_stat_info">
+                                <field name="call_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Total Calls</span>
+                            </div>
+                        </button>
+                        <button name="%(action_fsm_call)d" type="action" class="oe_stat_button" icon="fa-clock-o"
+                                context="{'search_default_technician_id': id, 'search_default_state_assigned': 1, 'search_default_state_in_progress': 1}">
+                            <div class="o_stat_info">
+                                <field name="active_call_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Active Calls</span>
+                            </div>
+                        </button>
+                    </div>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="Technician Name"/>
+                        </h1>
+                        <label for="code" class="oe_edit_only"/>
+                        <h2>
+                            <field name="code" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id" options="{'no_create': True}"/>
+                            <field name="partner_id"/>
+                            <field name="service_partner_id"/>
+                            <field name="dealer_id"/>
+                        </group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Service Areas">
+                            <field name="pincode_ids">
+                                <tree editable="bottom">
+                                    <field name="fsm_pincode_id" options="{'no_create': True}"/>
+                                    <field name="fsm_area_id" options="{'no_create': True}"/>
+                                    <field name="fsm_district_id" options="{'no_create': True}"/>
+                                    <field name="fsm_state_id" options="{'no_create': True}"/>
+                                    <field name="pincode"/>
+                                    <field name="area_name"/>
+                                    <field name="city"/>
+                                    <field name="state"/>
+                                    <field name="priority"/>
+                                    <field name="active"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Skills">
+                            <group>
+                                <field name="skill_ids" widget="many2many_tags"/>
+                                <field name="specialization" placeholder="Describe specialization..."/>
+                            </group>
+                        </page>
+                        <page string="Performance">
+                            <group>
+                                <group>
+                                    <field name="rating" widget="progressbar"/>
+                                    <field name="total_calls_completed"/>
+                                </group>
+                                <group>
+                                    <field name="avg_resolution_time"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Tree View -->
+    <record id="view_fsm_technician_tree" model="ir.ui.view">
+        <field name="name">fsm.technician.tree</field>
+        <field name="model">fsm.technician</field>
+        <field name="arch" type="xml">
+            <tree string="Technicians">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="service_partner_id"/>
+                <field name="dealer_id"/>
+                <field name="active_call_count"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state=='available'" 
+                       decoration-warning="state=='busy'"
+                       decoration-danger="state=='offline'"/>
+                <field name="rating" widget="progressbar"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Kanban View -->
+    <record id="view_fsm_technician_kanban" model="ir.ui.view">
+        <field name="name">fsm.technician.kanban</field>
+        <field name="model">fsm.technician</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <field name="active_call_count"/>
+                <field name="rating"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_image_fill_left d-none d-md-block" 
+                                 t-attf-style="background-image: url(#{kanban_image('fsm.technician', 'image_128', record.id.raw_value)})">
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="text-muted">
+                                    <field name="code"/>
+                                </div>
+                                <ul>
+                                    <li>Active Calls: <field name="active_call_count"/></li>
+                                    <li>Rating: <field name="rating" widget="progressbar"/></li>
+                                </ul>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="state" widget="label_selection"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Search View -->
+    <record id="view_fsm_technician_search" model="ir.ui.view">
+        <field name="name">fsm.technician.search</field>
+        <field name="model">fsm.technician</field>
+        <field name="arch" type="xml">
+            <search string="Search Technicians">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="user_id"/>
+                <field name="service_partner_id"/>
+                <filter name="available" string="Available" domain="[('state', '=', 'available')]"/>
+                <filter name="busy" string="Busy" domain="[('state', '=', 'busy')]"/>
+                <filter name="offline" string="Offline" domain="[('state', '=', 'offline')]"/>
+                <separator/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_partner" string="Service Partner" context="{'group_by': 'service_partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action -->
+    <record id="action_fsm_technician" model="ir.actions.act_window">
+        <field name="name">Technicians</field>
+        <field name="res_model">fsm.technician</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="view_fsm_technician_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new technician
+            </p>
+            <p>
+                Manage your field service technicians, their skills, and service areas.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Additional Actions for Other Models -->
+    
+    <!-- Skills Action -->
+    <record id="action_fsm_skill" model="ir.actions.act_window">
+        <field name="name">Skills</field>
+        <field name="res_model">fsm.skill</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <!-- Call Tags Action -->
+    <record id="action_fsm_call_tag" model="ir.actions.act_window">
+        <field name="name">Call Tags</field>
+        <field name="res_model">fsm.call.tag</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    </data>
+</odoo>

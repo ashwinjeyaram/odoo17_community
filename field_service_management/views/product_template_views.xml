@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Product Template Form View Extension -->
+        <record id="view_product_template_warranty_form" model="ir.ui.view">
+            <field name="name">product.template.warranty.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Warranty Information" name="warranty_info">
+                        <group>
+                            <group string="Product Warranty">
+                                <field name="warranty_type"/>
+                                <field name="warranty_duration" invisible="warranty_type == 'none'"/>
+                            </group>
+                            <group string="Motor Warranty">
+                                <field name="motor_warranty_type"/>
+                                <field name="motor_warranty_duration" invisible="motor_warranty_type == 'none'"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Product Product Form View Extension -->
+        <record id="view_product_product_warranty_form" model="ir.ui.view">
+            <field name="name">product.product.warranty.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Warranty Information" name="warranty_info">
+                        <group>
+                            <group string="Product Warranty">
+                                <field name="warranty_type"/>
+                                <field name="warranty_duration" invisible="warranty_type == 'none'"/>
+                            </group>
+                            <group string="Motor Warranty">
+                                <field name="motor_warranty_type"/>
+                                <field name="motor_warranty_duration" invisible="motor_warranty_type == 'none'"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

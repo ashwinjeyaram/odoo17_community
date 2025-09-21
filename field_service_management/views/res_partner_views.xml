@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Partner Form View to add FSM Calls Smart Button -->
+        <record id="view_partner_form_fsm_inherit" model="ir.ui.view">
+            <field name="name">res.partner.form.fsm.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_view_service_calls" type="object" class="oe_stat_button" icon="fa-wrench" 
+                            context="{'default_partner_id': active_id}">
+                        <field name="fsm_call_count" widget="statinfo" string="Service Calls"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

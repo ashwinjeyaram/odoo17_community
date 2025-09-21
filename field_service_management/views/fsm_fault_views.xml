@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_fsm_fault_tree" model="ir.ui.view">
+            <field name="name">fsm.fault.tree</field>
+            <field name="model">fsm.fault</field>
+            <field name="arch" type="xml">
+                <tree string="Faults">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_fsm_fault_form" model="ir.ui.view">
+            <field name="name">fsm.fault.form</field>
+            <field name="model">fsm.fault</field>
+            <field name="arch" type="xml">
+                <form string="Fault">
+                    <header>
+                        <field name="active" invisible="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="code" readonly="1"/>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <group string="Description">
+                            <field name="description" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_fsm_fault" model="ir.actions.act_window">
+            <field name="name">Faults</field>
+            <field name="res_model">fsm.fault</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

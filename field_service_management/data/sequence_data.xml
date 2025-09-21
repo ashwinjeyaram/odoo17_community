@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Technician Code Sequence -->
+        <record id="seq_fsm_technician" model="ir.sequence">
+            <field name="name">FSM Technician Code</field>
+            <field name="code">fsm.technician</field>
+            <field name="prefix">TECH-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Service Partner Code Sequence -->
+        <record id="seq_fsm_service_partner" model="ir.sequence">
+            <field name="name">FSM Service Partner Code</field>
+            <field name="code">fsm.service.partner</field>
+            <field name="prefix">SP-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Service Call Number Sequence -->
+        <record id="seq_fsm_call" model="ir.sequence">
+            <field name="name">FSM Service Call</field>
+            <field name="code">fsm.call</field>
+            <field name="prefix">CALL-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+            <field name="use_date_range" eval="True"/>
+        </record>
+        
+        <!-- Spare Request Sequence -->
+        <record id="seq_fsm_spare_request" model="ir.sequence">
+            <field name="name">FSM Spare Request</field>
+            <field name="code">fsm.spare.request</field>
+            <field name="prefix">SR-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Inventory Movement Sequences -->
+        <record id="seq_fsm_inventory" model="ir.sequence">
+            <field name="name">FSM Inventory Movement</field>
+            <field name="code">fsm.inventory</field>
+            <field name="prefix">INV-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_fsm_inventory_inward" model="ir.sequence">
+            <field name="name">FSM Material Inward</field>
+            <field name="code">fsm.inventory.inward</field>
+            <field name="prefix">IN-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_fsm_inventory_outward" model="ir.sequence">
+            <field name="name">FSM Material Outward</field>
+            <field name="code">fsm.inventory.outward</field>
+            <field name="prefix">OUT-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_fsm_inventory_return" model="ir.sequence">
+            <field name="name">FSM Material Return</field>
+            <field name="code">fsm.inventory.return</field>
+            <field name="prefix">RET-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_fsm_inventory_transfer" model="ir.sequence">
+            <field name="name">FSM Internal Transfer</field>
+            <field name="code">fsm.inventory.transfer</field>
+            <field name="prefix">TRF-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Stock Request Sequence -->
+        <record id="seq_fsm_stock_request" model="ir.sequence">
+            <field name="name">FSM Stock Request</field>
+            <field name="code">fsm.stock.request</field>
+            <field name="prefix">STK-REQ-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Expense Sequence -->
+        <record id="seq_fsm_expense" model="ir.sequence">
+            <field name="name">FSM Expense</field>
+            <field name="code">fsm.expense</field>
+            <field name="prefix">EXP-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Expense Report Sequence -->
+        <record id="seq_fsm_expense_report" model="ir.sequence">
+            <field name="name">FSM Expense Report</field>
+            <field name="code">fsm.expense.report</field>
+            <field name="prefix">EXP-RPT-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Claim Sequence -->
+        <record id="seq_fsm_claim" model="ir.sequence">
+            <field name="name">FSM Service Partner Claim</field>
+            <field name="code">fsm.claim</field>
+            <field name="prefix">CLM-%(year)s%(month)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Service Contract Sequence -->
+        <record id="seq_fsm_service_contract" model="ir.sequence">
+            <field name="name">FSM Service Contract</field>
+            <field name="code">fsm.service.contract</field>
+            <field name="prefix">CONTRACT-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Dealer Sequence -->
+        <record id="seq_fsm_dealer" model="ir.sequence">
+            <field name="name">FSM Dealer</field>
+            <field name="code">fsm.dealer</field>
+            <field name="prefix">DLR-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- Fault Sequence -->
+        <record id="seq_fsm_fault" model="ir.sequence">
+            <field name="name">FSM Fault</field>
+            <field name="code">fsm.fault</field>
+            <field name="prefix">FLT-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+    </data>
+</odoo>

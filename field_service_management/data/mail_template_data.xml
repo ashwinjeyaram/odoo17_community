@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Email Template for Call Assignment -->
+        <record id="mail_template_call_assigned" model="mail.template">
+            <field name="name">FSM: Service Call Assigned</field>
+            <field name="model_id" ref="field_service_management.model_fsm_call"/>
+            <field name="subject">Service Call ${object.name} - Assigned to You</field>
+            <field name="email_from">${object.company_id.email or 'noreply@company.com'}</field>
+            <field name="email_to">${object.technician_id.email}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255);">
+    <h3>Service Call Assignment</h3>
+    <p>Dear ${object.technician_id.name},</p>
+    
+    <p>A new service call has been assigned to you:</p>
+    
+    <table style="width: 100%; margin-top: 10px;">
+        <tr>
+            <td style="width: 150px;"><strong>Call Number:</strong></td>
+            <td>${object.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Customer:</strong></td>
+            <td>${object.partner_id.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Address:</strong></td>
+            <td>${object.street or ''} ${object.city or ''} ${object.pincode or ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Phone:</strong></td>
+            <td>${object.phone or object.mobile or ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Priority:</strong></td>
+            <td>${dict(object._fields['priority'].selection).get(object.priority)}</td>
+        </tr>
+        <tr>
+            <td><strong>Nature of Complaint:</strong></td>
+            <td>${object.nature_complaint}</td>
+        </tr>
+        % if object.sla_deadline:
+        <tr>
+            <td><strong>SLA Deadline:</strong></td>
+            <td>${object.sla_deadline}</td>
+        </tr>
+        % endif
+    </table>
+    
+    <p style="margin-top: 20px;">Please contact the customer and start the service as soon as possible.</p>
+    
+    <p>Best regards,<br/>
+    Field Service Management Team</p>
+</div>
+]]>
+            </field>
+        </record>
+        
+        <!-- Email Template for Call Closure -->
+        <record id="mail_template_call_closed" model="mail.template">
+            <field name="name">FSM: Service Call Closed</field>
+            <field name="model_id" ref="field_service_management.model_fsm_call"/>
+            <field name="subject">Service Call ${object.name} - Completed</field>
+            <field name="email_from">${object.company_id.email or 'noreply@company.com'}</field>
+            <field name="email_to">${object.partner_id.email}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255);">
+    <h3>Service Call Completed</h3>
+    <p>Dear ${object.partner_id.name},</p>
+    
+    <p>Your service call has been successfully completed.</p>
+    
+    <table style="width: 100%; margin-top: 10px;">
+        <tr>
+            <td style="width: 150px;"><strong>Call Number:</strong></td>
+            <td>${object.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Service Date:</strong></td>
+            <td>${object.call_date}</td>
+        </tr>
+        <tr>
+            <td><strong>Technician:</strong></td>
+            <td>${object.technician_id.name if object.technician_id else ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Resolution:</strong></td>
+            <td>${object.resolution or ''}</td>
+        </tr>
+        % if object.total_charge:
+        <tr>
+            <td><strong>Total Charge:</strong></td>
+            <td>${object.total_charge} ${object.currency_id.symbol}</td>
+        </tr>
+        % endif
+    </table>
+    
+    <p style="margin-top: 20px;">We would appreciate your feedback on the service provided. Please click the link below to provide your feedback:</p>
+    
+    <div style="margin: 20px 0;">
+        <a href="#" style="background-color: #00A09D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Provide Feedback</a>
+    </div>
+    
+    <p>Thank you for choosing our services!</p>
+    
+    <p>Best regards,<br/>
+    ${object.company_id.name}</p>
+</div>
+]]>
+            </field>
+        </record>
+        
+        <!-- Email Template for Spare Request Approval -->
+        <record id="mail_template_spare_request_approved" model="mail.template">
+            <field name="name">FSM: Spare Request Approved</field>
+            <field name="model_id" ref="field_service_management.model_fsm_spare_request"/>
+            <field name="subject">Spare Request ${object.name} - Approved</field>
+            <field name="email_from">${object.company_id.email or 'noreply@company.com'}</field>
+            <field name="email_to">${object.technician_id.email if object.technician_id else ''}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255);">
+    <h3>Spare Request Approved</h3>
+    <p>Dear ${object.technician_id.name if object.technician_id else 'Technician'},</p>
+    
+    <p>Your spare parts request has been approved.</p>
+    
+    <table style="width: 100%; margin-top: 10px;">
+        <tr>
+            <td style="width: 150px;"><strong>Request Number:</strong></td>
+            <td>${object.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Service Call:</strong></td>
+            <td>${object.call_id.name if object.call_id else ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Approved By:</strong></td>
+            <td>${object.approved_by.name if object.approved_by else ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Approved Date:</strong></td>
+            <td>${object.approved_date}</td>
+        </tr>
+    </table>
+    
+    <h4 style="margin-top: 20px;">Approved Spare Parts:</h4>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 8px;">Spare Part</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for line in object.spare_line_ids:
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">${line.spare_id.name}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${line.quantity} ${line.uom_id.name}</td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    
+    <p style="margin-top: 20px;">Please collect the spare parts from the warehouse.</p>
+    
+    <p>Best regards,<br/>
+    Field Service Management Team</p>
+</div>
+]]>
+            </field>
+        </record>
+        
+        <!-- Email Template for Expense Approval -->
+        <record id="mail_template_expense_approved" model="mail.template">
+            <field name="name">FSM: Expense Approved</field>
+            <field name="model_id" ref="field_service_management.model_fsm_expense"/>
+            <field name="subject">Expense ${object.name} - Approved</field>
+            <field name="email_from">${object.company_id.email or 'noreply@company.com'}</field>
+            <field name="email_to">${object.technician_id.email if object.technician_id else ''}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255);">
+    <h3>Expense Approved</h3>
+    <p>Dear ${object.technician_id.name if object.technician_id else 'Employee'},</p>
+    
+    <p>Your expense claim has been approved.</p>
+    
+    <table style="width: 100%; margin-top: 10px;">
+        <tr>
+            <td style="width: 150px;"><strong>Expense Reference:</strong></td>
+            <td>${object.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Expense Type:</strong></td>
+            <td>${dict(object._fields['expense_type'].selection).get(object.expense_type)}</td>
+        </tr>
+        <tr>
+            <td><strong>Amount:</strong></td>
+            <td>${object.final_amount} ${object.currency_id.symbol}</td>
+        </tr>
+        <tr>
+            <td><strong>Approved By:</strong></td>
+            <td>${object.approved_by.name if object.approved_by else ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Approved Date:</strong></td>
+            <td>${object.approved_date}</td>
+        </tr>
+    </table>
+    
+    <p style="margin-top: 20px;">The approved amount will be reimbursed as per company policy.</p>
+    
+    <p>Best regards,<br/>
+    Finance Team</p>
+</div>
+]]>
+            </field>
+        </record>
+        
+        <!-- Email Template for Claim Submission -->
+        <record id="mail_template_claim_submitted" model="mail.template">
+            <field name="name">FSM: Claim Submitted</field>
+            <field name="model_id" ref="field_service_management.model_fsm_claim"/>
+            <field name="subject">Service Partner Claim ${object.name} - Submitted</field>
+            <field name="email_from">${object.company_id.email or 'noreply@company.com'}</field>
+            <field name="email_to">${object.service_partner_id.email if object.service_partner_id else ''}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="font-family: 'Lucida Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 14px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255);">
+    <h3>Claim Submission Confirmation</h3>
+    <p>Dear ${object.service_partner_id.name if object.service_partner_id else 'Partner'},</p>
+    
+    <p>Your service claim has been successfully submitted for review.</p>
+    
+    <table style="width: 100%; margin-top: 10px;">
+        <tr>
+            <td style="width: 150px;"><strong>Claim Number:</strong></td>
+            <td>${object.name}</td>
+        </tr>
+        <tr>
+            <td><strong>Period:</strong></td>
+            <td>${object.period_start} to ${object.period_end}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Calls:</strong></td>
+            <td>${object.call_count}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Amount:</strong></td>
+            <td>${object.total_amount} ${object.currency_id.symbol}</td>
+        </tr>
+        <tr>
+            <td><strong>Submitted Date:</strong></td>
+            <td>${object.submitted_date}</td>
+        </tr>
+    </table>
+    
+    <p style="margin-top: 20px;">Your claim is now under review. You will be notified once it is processed.</p>
+    
+    <p>Best regards,<br/>
+    Partner Management Team</p>
+</div>
+]]>
+            </field>
+        </record>
+        
+    </data>
+</odoo>

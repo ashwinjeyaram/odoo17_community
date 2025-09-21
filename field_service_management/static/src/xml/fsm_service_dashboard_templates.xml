@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <!-- Main Dashboard Template -->
+    <t t-name="field_service_management.FSMServiceDashboardTemplate" owl="1">
+        <div class="o_fsm_service_dashboard h-100">
+            <!-- Compact Header -->
+            <div class="o_fsm_dashboard_compact_header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Service Call Dashboard</h3>
+                    <button class="btn btn-sm btn-outline-primary" t-on-click="refreshDashboard">
+                        <i class="fa fa-refresh mr-1"/>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div t-if="state.loading" class="o_dashboard_loading text-center p-5">
+                <i class="fa fa-spinner fa-spin fa-3x mb-3"/>
+                <h4>Loading dashboard data...</h4>
+            </div>
+
+            <!-- Error State -->
+            <div t-elif="state.error" class="o_dashboard_error text-center p-5">
+                <i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"/>
+                <h4>Unable to load dashboard data</h4>
+                <p t-esc="state.error"/>
+                <button class="btn btn-primary" t-on-click="refreshDashboard">
+                    <i class="fa fa-refresh mr-2"/>
+                    Retry
+                </button>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div t-else="" class="o_dashboard_content">
+                <div class="container-fluid">
+                    <!-- Unassigned Calls Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-exclamation-triangle text-warning mr-2"/>
+                                    Unassigned Service Calls
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/unassigned_calls')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_unassigned_calls"/>
+                                    <div class="o_kpi_title">Total Unassigned</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_danger" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/urgent_unassigned_calls')">
+                                    <div class="o_kpi_value" t-esc="state.data.urgent_unassigned_calls"/>
+                                    <div class="o_kpi_title">Urgent Unassigned</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_info">
+                                    <div class="o_kpi_value" t-esc="state.data.today_unassigned_calls"/>
+                                    <div class="o_kpi_title">Today's Unassigned</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/overdue_unassigned_calls')">
+                                    <div class="o_kpi_value" t-esc="state.data.overdue_unassigned_calls"/>
+                                    <div class="o_kpi_title">Overdue</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spare Requests Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-cogs text-info mr-2"/>
+                                    Spare Parts Requests
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/spare_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_spare_requests"/>
+                                    <div class="o_kpi_title">Total Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/pending_spare_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.pending_spare_requests"/>
+                                    <div class="o_kpi_title">Pending Approval</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_success">
+                                    <div class="o_kpi_value" t-esc="state.data.approved_spare_requests"/>
+                                    <div class="o_kpi_title">Approved</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_danger" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/urgent_spare_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.urgent_spare_requests"/>
+                                    <div class="o_kpi_title">Urgent Requests</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Feedback Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-star text-success mr-2"/>
+                                    Customer Feedback
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/customer_feedback')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_customer_feedback"/>
+                                    <div class="o_kpi_title">Total Feedback</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_success" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/excellent_feedback')">
+                                    <div class="o_kpi_value" t-esc="state.data.excellent_feedback"/>
+                                    <div class="o_kpi_title">5-Star Rating</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_info">
+                                    <div class="o_kpi_value" t-esc="state.data.good_feedback"/>
+                                    <div class="o_kpi_title">3-4 Star Rating</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_danger" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/poor_feedback')">
+                                    <div class="o_kpi_value" t-esc="state.data.poor_feedback"/>
+                                    <div class="o_kpi_title">1-2 Star Rating</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/dashboard/pending_feedback')">
+                                    <div class="o_kpi_value" t-esc="state.data.pending_feedback"/>
+                                    <div class="o_kpi_title">Pending Feedback</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_secondary">
+                                    <div class="o_kpi_value" t-esc="state.data.avg_feedback_rating"/>
+                                    <div class="o_kpi_title">Average Rating</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

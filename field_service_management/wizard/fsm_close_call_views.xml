@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Close Call Wizard Form View -->
+        <record id="view_fsm_close_call_wizard_form" model="ir.ui.view">
+            <field name="name">fsm.close.call.wizard.form</field>
+            <field name="model">fsm.close.call.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Close Service Call">
+                    <group>
+                        <field name="call_id" readonly="1"/>
+                        <field name="otp_code" placeholder="Enter 5-digit OTP"/>
+                    </group>
+                    <footer>
+                        <button name="action_verify_and_close" string="Verify and Close" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Close Call Wizard Action -->
+        <record id="action_fsm_close_call_wizard" model="ir.actions.act_window">
+            <field name="name">Close Service Call</field>
+            <field name="res_model">fsm.close.call.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_call_id': active_id}</field>
+        </record>
+    </data>
+</odoo>

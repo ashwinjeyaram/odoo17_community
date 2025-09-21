@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- FSM Expense Tree View -->
+        <record id="view_fsm_expense_tree" model="ir.ui.view">
+            <field name="name">fsm.expense.tree</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <tree string="Service Expenses" decoration-info="state=='draft'" decoration-warning="state=='submitted'" decoration-success="state=='approved'" decoration-danger="state=='rejected'">
+                    <field name="name"/>
+                    <field name="call_id"/>
+                    <field name="technician_id"/>
+                    <field name="expense_type"/>
+                    <field name="expense_date"/>
+                    <field name="final_amount" sum="Total" widget="monetary"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="state" widget="badge"/>
+                    <field name="is_billable"/>
+                    <field name="reimbursed"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- FSM Expense Form View -->
+        <record id="view_fsm_expense_form" model="ir.ui.view">
+            <field name="name">fsm.expense.form</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <form string="Service Expense">
+                    <header>
+                        <button name="action_submit" string="Submit for Approval" type="object" class="btn-primary" 
+                                invisible="state != 'draft'"/>
+                        <button name="action_approve" string="Approve" type="object" class="btn-success" 
+                                invisible="state != 'submitted'"/>
+                        <button name="action_reject" string="Reject" type="object" 
+                                invisible="state != 'submitted'"/>
+                        <button name="action_pay" string="Mark as Paid" type="object" class="btn-success"
+                                invisible="state != 'approved'"/>
+                        <button name="action_cancel" string="Cancel" type="object" 
+                                invisible="state in ['paid', 'cancelled']"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_attachments" type="object" class="oe_stat_button" icon="fa-paperclip">
+                                <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                            </button>
+                        </div>
+                        <widget name="web_ribbon" title="Reimbursed" bg_color="bg-success" invisible="reimbursed == False"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Expense Reference" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Basic Information">
+                                <field name="call_id" options="{'no_create': True}" invisible="state != 'draft'"/>
+                                <field name="technician_id" readonly="1"/>
+                                <field name="service_partner_id" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="expense_type" invisible="state != 'draft'"/>
+                                <field name="expense_date" invisible="state != 'draft'"/>
+                            </group>
+                            <group string="Amount Details">
+                                <field name="amount" widget="monetary" invisible="state != 'draft'"/>
+                                <field name="calculated_amount" widget="monetary" readonly="1" invisible="expense_type != 'travel'"/>
+                                <field name="final_amount" widget="monetary" readonly="1"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <group invisible="expense_type != 'travel'">
+                            <group string="Travel Details">
+                                <field name="from_location" invisible="state != 'draft'"/>
+                                <field name="to_location" invisible="state != 'draft'"/>
+                                <field name="distance_km" invisible="state != 'draft'"/>
+                                <field name="rate_per_km" widget="monetary" invisible="state != 'draft'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Billing and Reimbursement">
+                                <field name="is_billable"/>
+                                <field name="is_reimbursable"/>
+                                <field name="reimbursed" readonly="1"/>
+                                <field name="reimbursement_date" readonly="1" invisible="reimbursed == False"/>
+                            </group>
+                            <group string="Payment Details" invisible="state not in ['approved', 'paid']">
+                                <field name="payment_method"/>
+                                <field name="payment_reference"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description" placeholder="Describe the expense details..." invisible="state != 'draft'"/>
+                            </page>
+                            <page string="Attachments">
+                                <field name="attachment_ids" widget="many2many_binary" invisible="state != 'draft'"/>
+                            </page>
+                            <page string="Approval Information" invisible="state == 'draft'">
+                                <group>
+                                    <group string="Submission">
+                                        <field name="submitted_date" readonly="1"/>
+                                    </group>
+                                    <group string="Approval" invisible="state not in ['approved', 'paid']">
+                                        <field name="approved_by" readonly="1"/>
+                                        <field name="approved_date" readonly="1"/>
+                                    </group>
+                                </group>
+                                <group string="Rejection" invisible="state != 'rejected'">
+                                    <field name="rejected_by" readonly="1"/>
+                                    <field name="rejected_date" readonly="1"/>
+                                    <field name="rejection_reason" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Additional notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <!-- FSM Expense Kanban View -->
+        <record id="view_fsm_expense_kanban" model="ir.ui.view">
+            <field name="name">fsm.expense.kanban</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state">
+                    <field name="name"/>
+                    <field name="technician_id"/>
+                    <field name="expense_type"/>
+                    <field name="final_amount"/>
+                    <field name="currency_id"/>
+                    <field name="state"/>
+                    <field name="expense_date"/>
+                    <field name="is_billable"/>
+                    <field name="reimbursed"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="text-muted">
+                                        <field name="technician_id"/>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-pill"><field name="expense_type"/></span>
+                                        <span t-if="record.is_billable.raw_value" class="badge badge-info">Billable</span>
+                                        <span t-if="record.reimbursed.raw_value" class="badge badge-success">Reimbursed</span>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <strong><field name="final_amount" widget="monetary"/></strong>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="expense_date" widget="date"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- FSM Expense Search View -->
+        <record id="view_fsm_expense_search" model="ir.ui.view">
+            <field name="name">fsm.expense.search</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <search string="Search Expenses">
+                    <field name="name"/>
+                    <field name="call_id"/>
+                    <field name="technician_id"/>
+                    <field name="service_partner_id"/>
+                    <field name="expense_type"/>
+                    <field name="description"/>
+                    <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                    <filter name="submitted" string="Awaiting Approval" domain="[('state', '=', 'submitted')]"/>
+                    <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                    <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                    <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                    <separator/>
+                    <filter name="billable" string="Billable" domain="[('is_billable', '=', True)]"/>
+                    <filter name="reimbursable" string="Reimbursable" domain="[('is_reimbursable', '=', True)]"/>
+                    <filter name="reimbursed" string="Reimbursed" domain="[('reimbursed', '=', True)]"/>
+                    <separator/>
+                    <filter name="travel" string="Travel" domain="[('expense_type', '=', 'travel')]"/>
+                    <filter name="fuel" string="Fuel" domain="[('expense_type', '=', 'fuel')]"/>
+                    <filter name="food" string="Food &amp; Accommodation" domain="[('expense_type', '=', 'food')]"/>
+                    <filter name="parts" string="Spare Parts" domain="[('expense_type', '=', 'parts')]"/>
+                    <separator/>
+                    <filter name="today" string="Today" domain="[('expense_date', '=', context_today())]"/>
+                    <filter name="this_week" string="This Week" domain="[('expense_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%%Y-%%m-%%d'))]"/>
+                    <filter name="this_month" string="This Month" domain="[('expense_date', '&gt;=', (context_today().replace(day=1)).strftime('%%Y-%%m-%%d'))]"/>
+                    <filter name="last_month" string="Last Month" domain="[
+                        ('expense_date', '&gt;=', (context_today().replace(day=1) - relativedelta(months=1)).strftime('%%Y-%%m-%%d')),
+                        ('expense_date', '&lt;', (context_today().replace(day=1)).strftime('%%Y-%%m-%%d'))
+                    ]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_type" string="Expense Type" context="{'group_by': 'expense_type'}"/>
+                        <filter name="group_by_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                        <filter name="group_by_partner" string="Service Partner" context="{'group_by': 'service_partner_id'}"/>
+                        <filter name="group_by_date" string="Expense Date" context="{'group_by': 'expense_date:month'}"/>
+                        <filter name="group_by_call" string="Service Call" context="{'group_by': 'call_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- FSM Expense Action -->
+        <record id="action_fsm_expense" model="ir.actions.act_window">
+            <field name="name">Service Expenses</field>
+            <field name="res_model">fsm.expense</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph</field>
+            <field name="search_view_id" ref="view_fsm_expense_search"/>
+            <field name="context">{'search_default_submitted': 1, 'search_default_approved': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Record a new service expense
+                </p>
+                <p>
+                    Track and manage expenses related to field service operations including travel, fuel, food, tools, and spare parts.
+                </p>
+            </field>
+        </record>
+
+        <!-- FSM Expense Category Views -->
+        <record id="view_fsm_expense_category_tree" model="ir.ui.view">
+            <field name="name">fsm.expense.category.tree</field>
+            <field name="model">fsm.expense.category</field>
+            <field name="arch" type="xml">
+                <tree string="Expense Categories">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="daily_limit" widget="monetary"/>
+                    <field name="monthly_limit" widget="monetary"/>
+                    <field name="requires_approval"/>
+                    <field name="requires_receipt"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_fsm_expense_category_form" model="ir.ui.view">
+            <field name="name">fsm.expense.category.form</field>
+            <field name="model">fsm.expense.category</field>
+            <field name="arch" type="xml">
+                <form string="Expense Category">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="sequence"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="daily_limit" widget="monetary"/>
+                                <field name="monthly_limit" widget="monetary"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Approval Rules">
+                                <field name="requires_approval"/>
+                                <field name="auto_approve_below" widget="monetary" invisible="requires_approval == False"/>
+                            </group>
+                            <group string="Documentation">
+                                <field name="requires_receipt"/>
+                                <field name="min_receipt_amount" widget="monetary" invisible="requires_receipt == False"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_fsm_expense_category" model="ir.actions.act_window">
+            <field name="name">Expense Categories</field>
+            <field name="res_model">fsm.expense.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- FSM Expense Report Views -->
+        <record id="view_fsm_expense_report_tree" model="ir.ui.view">
+            <field name="name">fsm.expense.report.tree</field>
+            <field name="model">fsm.expense.report</field>
+            <field name="arch" type="xml">
+                <tree string="Expense Reports">
+                    <field name="name"/>
+                    <field name="technician_id"/>
+                    <field name="service_partner_id"/>
+                    <field name="period_start"/>
+                    <field name="period_end"/>
+                    <field name="expense_count"/>
+                    <field name="total_amount" widget="monetary"/>
+                    <field name="approved_amount" widget="monetary"/>
+                    <field name="paid_amount" widget="monetary"/>
+                    <field name="state" widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_fsm_expense_report_form" model="ir.ui.view">
+            <field name="name">fsm.expense.report.form</field>
+            <field name="model">fsm.expense.report</field>
+            <field name="arch" type="xml">
+                <form string="Expense Report">
+                    <header>
+                        <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary" 
+                                invisible="state != 'draft'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Period">
+                                <field name="period_start"/>
+                                <field name="period_end"/>
+                            </group>
+                            <group string="Filters">
+                                <field name="technician_id"/>
+                                <field name="service_partner_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Summary">
+                                <field name="expense_count"/>
+                                <field name="total_amount" widget="monetary"/>
+                                <field name="approved_amount" widget="monetary"/>
+                                <field name="pending_amount" widget="monetary"/>
+                                <field name="paid_amount" widget="monetary"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Expenses">
+                                <field name="expense_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="expense_date"/>
+                                        <field name="expense_type"/>
+                                        <field name="description"/>
+                                        <field name="final_amount" widget="monetary"/>
+                                        <field name="state" widget="badge"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes" placeholder="Report notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_fsm_expense_report" model="ir.actions.act_window">
+            <field name="name">Expense Reports</field>
+            <field name="res_model">fsm.expense.report</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Expense Reject Wizard -->
+        <record id="view_fsm_expense_reject_form" model="ir.ui.view">
+            <field name="name">fsm.expense.reject.form</field>
+            <field name="model">fsm.expense.reject</field>
+            <field name="arch" type="xml">
+                <form string="Reject Expense">
+                    <group>
+                        <field name="expense_id" readonly="1"/>
+                        <field name="rejection_reason" placeholder="Please provide reason for rejection..."/>
+                    </group>
+                    <footer>
+                        <button name="action_reject" string="Reject" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Pivot and Graph Views -->
+        <record id="view_fsm_expense_pivot" model="ir.ui.view">
+            <field name="name">fsm.expense.pivot</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <pivot string="Expense Analysis">
+                    <field name="technician_id" type="row"/>
+                    <field name="expense_type" type="row"/>
+                    <field name="expense_date" interval="month" type="col"/>
+                    <field name="final_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_fsm_expense_graph" model="ir.ui.view">
+            <field name="name">fsm.expense.graph</field>
+            <field name="model">fsm.expense</field>
+            <field name="arch" type="xml">
+                <graph string="Expense Trends" type="line">
+                    <field name="expense_date" interval="month"/>
+                    <field name="final_amount" type="measure"/>
+                    <field name="expense_type" type="row"/>
+                </graph>
+            </field>
+        </record>
+    </data>
+</odoo>

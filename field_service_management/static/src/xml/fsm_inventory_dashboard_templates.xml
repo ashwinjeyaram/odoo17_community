@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <!-- Main Inventory Dashboard Template -->
+    <t t-name="field_service_management.FSMInventoryDashboardTemplate" owl="1">
+        <div class="o_fsm_inventory_dashboard h-100">
+            <!-- Compact Header -->
+            <div class="o_fsm_dashboard_compact_header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Inventory Dashboard</h3>
+                    <button class="btn btn-sm btn-outline-primary" t-on-click="refreshDashboard">
+                        <i class="fa fa-refresh mr-1"/>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div t-if="state.loading" class="o_dashboard_loading text-center p-5">
+                <i class="fa fa-spinner fa-spin fa-3x mb-3"/>
+                <h4>Loading inventory data...</h4>
+            </div>
+
+            <!-- Error State -->
+            <div t-elif="state.error" class="o_dashboard_error text-center p-5">
+                <i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"/>
+                <h4>Unable to load inventory data</h4>
+                <p t-esc="state.error"/>
+                <button class="btn btn-primary" t-on-click="refreshDashboard">
+                    <i class="fa fa-refresh mr-2"/>
+                    Retry
+                </button>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div t-else="" class="o_dashboard_content">
+                <div class="container-fluid">
+                    <!-- Stock Overview Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-boxes text-primary mr-2"/>
+                                    Stock Overview
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/inventory/current_stock')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_products"/>
+                                    <div class="o_kpi_title">Total Products</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_success">
+                                    <div class="o_kpi_value" t-esc="state.data.total_stock_value"/>
+                                    <div class="o_kpi_title">Stock Value</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/inventory/low_stock')">
+                                    <div class="o_kpi_value" t-esc="state.data.low_stock_items"/>
+                                    <div class="o_kpi_title">Low Stock Items</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_danger" t-on-click="() => this.onKpiCardClick('/fsm/inventory/out_of_stock')">
+                                    <div class="o_kpi_value" t-esc="state.data.out_of_stock_items"/>
+                                    <div class="o_kpi_title">Out of Stock</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_info" t-on-click="() => this.onKpiCardClick('/fsm/inventory/overstock')">
+                                    <div class="o_kpi_value" t-esc="state.data.overstock_items"/>
+                                    <div class="o_kpi_title">Overstock Items</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_secondary">
+                                    <div class="o_kpi_value" t-esc="state.data.stock_turnover_ratio"/>
+                                    <div class="o_kpi_title">Turnover Ratio</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Movements Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-exchange-alt text-info mr-2"/>
+                                    Stock Movements (Last 30 Days)
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_success" t-on-click="() => this.onKpiCardClick('/fsm/inventory/inward_movements')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_inward_qty"/>
+                                    <div class="o_kpi_title">Total Inward Qty</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/inventory/outward_movements')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_outward_qty"/>
+                                    <div class="o_kpi_title">Total Outward Qty</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_info" t-on-click="() => this.onKpiCardClick('/fsm/inventory/inward_movements')">
+                                    <div class="o_kpi_value" t-esc="state.data.inward_moves_count"/>
+                                    <div class="o_kpi_title">Inward Movements</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/inventory/outward_movements')">
+                                    <div class="o_kpi_value" t-esc="state.data.outward_moves_count"/>
+                                    <div class="o_kpi_title">Outward Movements</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Requests Section -->
+                    <div class="o_fsm_dashboard_section">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="o_section_title">
+                                    <i class="fa fa-clipboard-list text-warning mr-2"/>
+                                    Stock Requests
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_primary" t-on-click="() => this.onKpiCardClick('/fsm/inventory/stock_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.total_requests"/>
+                                    <div class="o_kpi_title">Total Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_warning" t-on-click="() => this.onKpiCardClick('/fsm/inventory/pending_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.pending_requests"/>
+                                    <div class="o_kpi_title">Pending Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_success" t-on-click="() => this.onKpiCardClick('/fsm/inventory/approved_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.approved_requests"/>
+                                    <div class="o_kpi_title">Approved Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_info">
+                                    <div class="o_kpi_value" t-esc="state.data.issued_requests"/>
+                                    <div class="o_kpi_title">Issued Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_secondary" t-on-click="() => this.onKpiCardClick('/fsm/inventory/today_requests')">
+                                    <div class="o_kpi_value" t-esc="state.data.today_requests"/>
+                                    <div class="o_kpi_title">Today's Requests</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div class="o_kpi_card o_kpi_danger">
+                                    <div class="o_kpi_value" t-esc="state.data.recent_moves_count"/>
+                                    <div class="o_kpi_title">Recent Moves (7d)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

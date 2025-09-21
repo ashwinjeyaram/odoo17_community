@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_fsm_dealer_tree" model="ir.ui.view">
+            <field name="name">fsm.dealer.tree</field>
+            <field name="model">fsm.dealer</field>
+            <field name="arch" type="xml">
+                <tree string="Dealers">
+                    <field name="name"/>
+                    <field name="city"/>
+                    <field name="phone_number"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_fsm_dealer_form" model="ir.ui.view">
+            <field name="name">fsm.dealer.form</field>
+            <field name="model">fsm.dealer</field>
+            <field name="arch" type="xml">
+                <form string="Dealer">
+                    <header>
+                        <field name="active" invisible="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="city"/>
+                            </group>
+                            <group>
+                                <field name="phone_number"/>
+                            </group>
+                        </group>
+                        <group string="Technicians">
+                            <field name="technician_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="phone"/>
+                                    <field name="service_partner_id"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_fsm_dealer" model="ir.actions.act_window">
+            <field name="name">Dealers</field>
+            <field name="res_model">fsm.dealer</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

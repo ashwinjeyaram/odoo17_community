@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    
+        <!-- Main Menu -->
+    <menuitem id="menu_fsm_root"
+              name="Field Service"
+              web_icon="field_service_management,static/description/icon.png"
+              sequence="10"/>
+
+    <!-- Service Call Dashboard Menu -->
+    <menuitem id="menu_fsm_service_dashboard"
+              name="Service Call Dashboard"
+              parent="menu_fsm_root"
+              action="action_fsm_client_dashboard"
+              sequence="5"/>
+
+    <!-- Service Operations Menu -->
+    <menuitem id="menu_fsm_operations"
+              name="Service Operations"
+              parent="menu_fsm_root"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_calls"
+              name="Service Calls"
+              parent="menu_fsm_operations"
+              action="action_fsm_call"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_feedback"
+              name="Customer Feedback"
+              parent="menu_fsm_operations"
+              action="action_fsm_feedback"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_expenses"
+              name="Expenses"
+              parent="menu_fsm_operations"
+              action="action_fsm_expense"
+              sequence="30"/>
+    
+    <!-- Inventory Menu -->
+    <menuitem id="menu_fsm_inventory"
+              name="Inventory"
+              parent="menu_fsm_root"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_spare_parts"
+              name="Spare Parts"
+              parent="menu_fsm_inventory"
+              action="action_fsm_spare"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_spare_requests"
+              name="Spare Requests"
+              parent="menu_fsm_inventory"
+              action="action_fsm_spare_request"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_inventory_movements"
+              name="Inventory Movements"
+              parent="menu_fsm_inventory"
+              action="action_fsm_inventory"
+              sequence="30"/>
+    
+    <menuitem id="menu_fsm_stock_requests"
+              name="Stock Requests"
+              parent="menu_fsm_inventory"
+              action="action_fsm_stock_request"
+              sequence="40"/>
+    
+    <!-- Partners Menu -->
+    <menuitem id="menu_fsm_partners"
+              name="Partners"
+              parent="menu_fsm_root"
+              sequence="30"/>
+    
+    <menuitem id="menu_fsm_technicians"
+              name="Technicians"
+              parent="menu_fsm_partners"
+              action="action_fsm_technician"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_service_partners"
+              name="Service Partners"
+              parent="menu_fsm_partners"
+              action="action_fsm_service_partner"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_claims"
+              name="Partner Claims"
+              parent="menu_fsm_partners"
+              action="action_fsm_claim"
+              sequence="30"/>
+    
+    <!-- Configuration Menu -->
+    <menuitem id="menu_fsm_configuration"
+              name="Configuration"
+              parent="menu_fsm_root"
+              groups="group_fsm_manager"
+              sequence="90"/>
+    
+    <!-- Location Masters -->
+    <menuitem id="menu_fsm_location_masters"
+              name="Location Masters"
+              parent="menu_fsm_configuration"
+              sequence="5"/>
+              
+    <menuitem id="menu_fsm_states"
+              name="States"
+              parent="menu_fsm_location_masters"
+              action="action_fsm_state"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_districts"
+              name="Districts"
+              parent="menu_fsm_location_masters"
+              action="action_fsm_district"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_pincodes"
+              name="Pincodes"
+              parent="menu_fsm_location_masters"
+              action="action_fsm_pincode"
+              sequence="30"/>
+    
+    <menuitem id="menu_fsm_areas"
+              name="Areas"
+              parent="menu_fsm_location_masters"
+              action="action_fsm_area"
+              sequence="40"/>
+    
+    <menuitem id="menu_fsm_skills"
+              name="Skills"
+              parent="menu_fsm_configuration"
+              action="action_fsm_skill"
+              sequence="10"/>
+    
+    <menuitem id="menu_fsm_call_tags"
+              name="Call Tags"
+              parent="menu_fsm_configuration"
+              action="action_fsm_call_tag"
+              sequence="20"/>
+    
+    <menuitem id="menu_fsm_spare_categories"
+              name="Spare Categories"
+              parent="menu_fsm_configuration"
+              action="action_fsm_spare_category"
+              sequence="30"/>
+    
+    <menuitem id="menu_fsm_expense_categories"
+              name="Expense Categories"
+              parent="menu_fsm_configuration"
+              action="action_fsm_expense_category"
+              sequence="40"/>
+    
+    <menuitem id="menu_fsm_service_contracts"
+              name="Service Contracts"
+              parent="menu_fsm_configuration"
+              action="action_fsm_service_contract"
+              sequence="50"/>
+    
+    <menuitem id="menu_fsm_dealers"
+              name="Dealers"
+              parent="menu_fsm_configuration"
+              action="action_fsm_dealer"
+              sequence="60"/>
+    
+    <menuitem id="menu_fsm_faults"
+              name="Faults"
+              parent="menu_fsm_configuration"
+              action="action_fsm_fault"
+              sequence="70"/>
+    
+    <menuitem id="menu_fsm_unassigned_calls"
+              name="Unassigned Calls"
+              parent="menu_fsm_operations"
+              action="action_fsm_unassigned_calls"
+              sequence="15"/>
+    
+    <!-- Reports Menu -->
+    <menuitem id="menu_fsm_reports"
+              name="Reports"
+              parent="menu_fsm_root"
+              groups="group_fsm_manager"
+              sequence="80"/>
+    
+    <menuitem id="menu_fsm_expense_reports"
+              name="Expense Reports"
+              parent="menu_fsm_reports"
+              action="action_fsm_expense_report"
+              sequence="10"/>
+    
+    </data>
+</odoo>

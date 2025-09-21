@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Client Action for Service Dashboard -->
+        <record id="action_fsm_client_dashboard" model="ir.actions.client">
+            <field name="name">Service Call Dashboard</field>
+            <field name="tag">fsm_service_dashboard</field>
+            <field name="target">main</field>
+        </record>
+    </data>
+</odoo>

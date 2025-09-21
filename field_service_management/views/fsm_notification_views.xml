@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Notification Transaction Tree View -->
+        <record id="view_fsm_notification_transaction_tree" model="ir.ui.view">
+            <field name="name">fsm.notification.transaction.tree</field>
+            <field name="model">fsm.notification.transaction</field>
+            <field name="arch" type="xml">
+                <tree string="Notification Transactions" create="false" edit="false" delete="false">
+                    <field name="create_date"/>
+                    <field name="call_id"/>
+                    <field name="spare_request_id"/>
+                    <field name="technician_id"/>
+                    <field name="service_partner_id"/>
+                    <field name="notification_type"/>
+                    <field name="old_status"/>
+                    <field name="new_status"/>
+                    <field name="otp_verified" invisible="notification_type not in ['otp_generated', 'otp_verified']"/>
+                    <field name="description"/>
+                    <field name="user_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Notification Transaction Form View -->
+        <record id="view_fsm_notification_transaction_form" model="ir.ui.view">
+            <field name="name">fsm.notification.transaction.form</field>
+            <field name="model">fsm.notification.transaction</field>
+            <field name="arch" type="xml">
+                <form string="Notification Transaction" create="false" edit="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="display_name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_id"/>
+                                <field name="spare_request_id"/>
+                                <field name="technician_id"/>
+                                <field name="service_partner_id"/>
+                            </group>
+                            <group>
+                                <field name="notification_type"/>
+                                <field name="old_status"/>
+                                <field name="new_status"/>
+                                <field name="create_date"/>
+                                <field name="user_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="OTP Information" invisible="notification_type not in ['otp_generated', 'otp_verified']">
+                                <field name="otp_code" invisible="notification_type != 'otp_generated'"/>
+                                <field name="otp_verified" invisible="notification_type != 'otp_generated'"/>
+                                <field name="otp_generated_date" invisible="notification_type != 'otp_generated'"/>
+                            </group>
+                        </group>
+                        <group string="Description">
+                            <field name="description" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Notification Transaction Search View -->
+        <record id="view_fsm_notification_transaction_search" model="ir.ui.view">
+            <field name="name">fsm.notification.transaction.search</field>
+            <field name="model">fsm.notification.transaction</field>
+            <field name="arch" type="xml">
+                <search string="Search Notification Transactions">
+                    <field name="call_id"/>
+                    <field name="spare_request_id"/>
+                    <field name="technician_id"/>
+                    <field name="service_partner_id"/>
+                    <field name="notification_type"/>
+                    <field name="description"/>
+                    <filter name="otp_generated" string="OTP Generated" domain="[('notification_type', '=', 'otp_generated')]"/>
+                    <filter name="otp_verified" string="OTP Verified" domain="[('notification_type', '=', 'otp_verified')]"/>
+                    <filter name="call_created" string="Call Created" domain="[('notification_type', '=', 'call_created')]"/>
+                    <filter name="call_assigned" string="Call Assigned" domain="[('notification_type', '=', 'call_assigned')]"/>
+                    <filter name="call_started" string="Call Started" domain="[('notification_type', '=', 'call_started')]"/>
+                    <filter name="call_resolved" string="Call Resolved" domain="[('notification_type', '=', 'call_resolved')]"/>
+                    <filter name="call_closed" string="Call Closed" domain="[('notification_type', '=', 'call_closed')]"/>
+                    <filter name="spare_requested" string="Spare Requested" domain="[('notification_type', '=', 'spare_requested')]"/>
+                    <filter name="spare_approved" string="Spare Approved" domain="[('notification_type', '=', 'spare_approved')]"/>
+                    <filter name="spare_issued" string="Spare Issued" domain="[('notification_type', '=', 'spare_issued')]"/>
+                    <filter name="spare_received" string="Spare Received" domain="[('notification_type', '=', 'spare_received')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_notification_type" string="Notification Type" context="{'group_by': 'notification_type'}"/>
+                        <filter name="group_by_technician" string="Technician" context="{'group_by': 'technician_id'}"/>
+                        <filter name="group_by_service_partner" string="Service Partner" context="{'group_by': 'service_partner_id'}"/>
+                        <filter name="group_by_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Notification Transaction Action -->
+        <record id="action_fsm_notification_transaction" model="ir.actions.act_window">
+            <field name="name">Notification Transactions</field>
+            <field name="res_model">fsm.notification.transaction</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_notification_transaction_search"/>
+            <field name="context">{'search_default_group_by_notification_type': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No notification transactions yet
+                </p>
+                <p>
+                    All activities related to service calls, spare requests, and technician assignments are tracked here.
+                </p>
+            </field>
+        </record>
+
+        <!-- Add menu item for Notification Transactions -->
+        <menuitem id="menu_fsm_notification_transactions"
+                  name="Notification Transactions"
+                  parent="menu_fsm_operations"
+                  action="action_fsm_notification_transaction"
+                  sequence="25"/>
+    </data>
+</odoo>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Default Call Tags -->
+        <record id="fsm_call_tag_urgent" model="fsm.call.tag">
+            <field name="name">Urgent</field>
+            <field name="color">1</field>
+        </record>
+        
+        <record id="fsm_call_tag_warranty" model="fsm.call.tag">
+            <field name="name">Warranty</field>
+            <field name="color">2</field>
+        </record>
+        
+        <record id="fsm_call_tag_repeat" model="fsm.call.tag">
+            <field name="name">Repeat Issue</field>
+            <field name="color">3</field>
+        </record>
+        
+        <record id="fsm_call_tag_vip" model="fsm.call.tag">
+            <field name="name">VIP Customer</field>
+            <field name="color">4</field>
+        </record>
+        
+        <record id="fsm_call_tag_installation" model="fsm.call.tag">
+            <field name="name">Installation</field>
+            <field name="color">5</field>
+        </record>
+        
+        <!-- Default Skills -->
+        <record id="fsm_skill_electrical" model="fsm.skill">
+            <field name="name">Electrical</field>
+            <field name="description">Electrical repairs and maintenance</field>
+        </record>
+        
+        <record id="fsm_skill_plumbing" model="fsm.skill">
+            <field name="name">Plumbing</field>
+            <field name="description">Plumbing repairs and installation</field>
+        </record>
+        
+        <record id="fsm_skill_hvac" model="fsm.skill">
+            <field name="name">HVAC</field>
+            <field name="description">Heating, Ventilation, and Air Conditioning</field>
+        </record>
+        
+        <record id="fsm_skill_appliance" model="fsm.skill">
+            <field name="name">Appliance Repair</field>
+            <field name="description">Home appliance repair and maintenance</field>
+        </record>
+        
+        <record id="fsm_skill_electronics" model="fsm.skill">
+            <field name="name">Electronics</field>
+            <field name="description">Electronic device repair</field>
+        </record>
+        
+        <!-- Default Spare Categories -->
+        <record id="fsm_spare_category_electrical" model="fsm.spare.category">
+            <field name="name">Electrical Components</field>
+        </record>
+        
+        <record id="fsm_spare_category_mechanical" model="fsm.spare.category">
+            <field name="name">Mechanical Parts</field>
+        </record>
+        
+        <record id="fsm_spare_category_electronic" model="fsm.spare.category">
+            <field name="name">Electronic Components</field>
+        </record>
+        
+        <record id="fsm_spare_category_consumables" model="fsm.spare.category">
+            <field name="name">Consumables</field>
+        </record>
+        
+        <record id="fsm_spare_category_filters" model="fsm.spare.category">
+            <field name="name">Filters</field>
+            <field name="parent_id" ref="fsm_spare_category_consumables"/>
+        </record>
+        
+        <record id="fsm_spare_category_belts" model="fsm.spare.category">
+            <field name="name">Belts</field>
+            <field name="parent_id" ref="fsm_spare_category_mechanical"/>
+        </record>
+        
+        <!-- Default Expense Categories -->
+        <record id="fsm_expense_category_travel" model="fsm.expense.category">
+            <field name="name">Travel</field>
+            <field name="code">TRAVEL</field>
+            <field name="sequence">10</field>
+            <field name="daily_limit">500</field>
+            <field name="monthly_limit">10000</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="auto_approve_below">100</field>
+            <field name="requires_receipt" eval="True"/>
+            <field name="min_receipt_amount">50</field>
+        </record>
+        
+        <record id="fsm_expense_category_fuel" model="fsm.expense.category">
+            <field name="name">Fuel</field>
+            <field name="code">FUEL</field>
+            <field name="sequence">20</field>
+            <field name="daily_limit">200</field>
+            <field name="monthly_limit">4000</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="auto_approve_below">50</field>
+            <field name="requires_receipt" eval="True"/>
+            <field name="min_receipt_amount">20</field>
+        </record>
+        
+        <record id="fsm_expense_category_food" model="fsm.expense.category">
+            <field name="name">Food &amp; Accommodation</field>
+            <field name="code">FOOD</field>
+            <field name="sequence">30</field>
+            <field name="daily_limit">300</field>
+            <field name="monthly_limit">3000</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="auto_approve_below">50</field>
+            <field name="requires_receipt" eval="True"/>
+            <field name="min_receipt_amount">25</field>
+        </record>
+        
+        <record id="fsm_expense_category_tools" model="fsm.expense.category">
+            <field name="name">Tools &amp; Equipment</field>
+            <field name="code">TOOLS</field>
+            <field name="sequence">40</field>
+            <field name="daily_limit">1000</field>
+            <field name="monthly_limit">5000</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="auto_approve_below">0</field>
+            <field name="requires_receipt" eval="True"/>
+            <field name="min_receipt_amount">0</field>
+        </record>
+        
+        <!-- Scheduled Actions -->
+        <record id="ir_cron_check_contract_expiry" model="ir.cron">
+            <field name="name">FSM: Check Contract Expiry</field>
+            <field name="model_id" ref="model_fsm_service_contract"/>
+            <field name="state">code</field>
+            <field name="code">model.check_expired_contracts()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <record id="ir_cron_check_service_partner_contract" model="ir.cron">
+            <field name="name">FSM: Check Service Partner Contract Expiry</field>
+            <field name="model_id" ref="model_fsm_service_partner"/>
+            <field name="state">code</field>
+            <field name="code">model._check_contract_expiry()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <record id="ir_cron_check_stock_levels" model="ir.cron">
+            <field name="name">FSM: Check Stock Levels</field>
+            <field name="model_id" ref="model_fsm_spare"/>
+            <field name="state">code</field>
+            <field name="code">model.check_all_stock_levels()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+    </data>
+</odoo>

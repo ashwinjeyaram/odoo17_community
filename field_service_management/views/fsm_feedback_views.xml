@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_fsm_feedback" model="ir.actions.act_window">
+        <field name="name">Customer Feedback</field>
+        <field name="res_model">fsm.feedback</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_expense" model="ir.actions.act_window">
+        <field name="name">Expenses</field>
+        <field name="res_model">fsm.expense</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_spare_request" model="ir.actions.act_window">
+        <field name="name">Spare Requests</field>
+        <field name="res_model">fsm.spare.request</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_inventory" model="ir.actions.act_window">
+        <field name="name">Inventory Movements</field>
+        <field name="res_model">fsm.inventory</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_stock_request" model="ir.actions.act_window">
+        <field name="name">Stock Requests</field>
+        <field name="res_model">fsm.stock.request</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_claim" model="ir.actions.act_window">
+        <field name="name">Partner Claims</field>
+        <field name="res_model">fsm.claim</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_spare_category" model="ir.actions.act_window">
+        <field name="name">Spare Categories</field>
+        <field name="res_model">fsm.spare.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_expense_category" model="ir.actions.act_window">
+        <field name="name">Expense Categories</field>
+        <field name="res_model">fsm.expense.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_service_contract" model="ir.actions.act_window">
+        <field name="name">Service Contracts</field>
+        <field name="res_model">fsm.service.contract</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <record id="action_fsm_expense_report" model="ir.actions.act_window">
+        <field name="name">Expense Reports</field>
+        <field name="res_model">fsm.expense.report</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    </data>
+</odoo>

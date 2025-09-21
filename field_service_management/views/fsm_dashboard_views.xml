@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Dashboard Action -->
+        <record id="action_fsm_dashboard" model="ir.actions.client">
+            <field name="name">Field Service Dashboard</field>
+            <field name="tag">fsm_dashboard</field>
+        </record>
+        
+        <!-- Dashboard View -->
+        <record id="view_fsm_dashboard_form" model="ir.ui.view">
+            <field name="name">fsm.dashboard.form</field>
+            <field name="model">fsm.dashboard</field>
+            <field name="arch" type="xml">
+                <form string="Field Service Dashboard" create="false" edit="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Field Service Management Dashboard</h1>
+                        </div>
+                        <group>
+                            <group string="Today's Statistics">
+                                <field name="total_calls_today" widget="statinfo"/>
+                                <field name="pending_calls_today" widget="statinfo"/>
+                                <field name="completed_calls_today" widget="statinfo"/>
+                                <field name="cancelled_calls_today" widget="statinfo"/>
+                            </group>
+                            <group string="Technician Status">
+                                <field name="available_technicians" widget="statinfo"/>
+                                <field name="busy_technicians" widget="statinfo"/>
+                                <field name="offline_technicians" widget="statinfo"/>
+                                <field name="total_technicians" widget="statinfo"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Service Calls Overview">
+                                <group col="4">
+                                    <button name="action_view_pending_calls" type="object" class="oe_stat_button" icon="fa-clock-o">
+                                        <field name="pending_calls" widget="statinfo" string="Pending Calls"/>
+                                    </button>
+                                    <button name="action_view_assigned_calls" type="object" class="oe_stat_button" icon="fa-user">
+                                        <field name="assigned_calls" widget="statinfo" string="Assigned Calls"/>
+                                    </button>
+                                    <button name="action_view_in_progress_calls" type="object" class="oe_stat_button" icon="fa-cogs">
+                                        <field name="in_progress_calls" widget="statinfo" string="In Progress"/>
+                                    </button>
+                                    <button name="action_view_completed_calls" type="object" class="oe_stat_button" icon="fa-check">
+                                        <field name="completed_calls" widget="statinfo" string="Completed Today"/>
+                                    </button>
+                                </group>
+                            </page>
+                            <page string="Priority Analysis">
+                                <group col="4">
+                                    <button name="action_view_urgent_calls" type="object" class="oe_stat_button" icon="fa-exclamation-circle" invisible="urgent_calls == 0">
+                                        <field name="urgent_calls" widget="statinfo" string="Urgent" class="text-danger"/>
+                                    </button>
+                                    <button name="action_view_high_priority_calls" type="object" class="oe_stat_button" icon="fa-arrow-up">
+                                        <field name="high_priority_calls" widget="statinfo" string="High Priority"/>
+                                    </button>
+                                    <button name="action_view_normal_calls" type="object" class="oe_stat_button" icon="fa-minus">
+                                        <field name="normal_calls" widget="statinfo" string="Normal"/>
+                                    </button>
+                                    <button name="action_view_low_calls" type="object" class="oe_stat_button" icon="fa-arrow-down">
+                                        <field name="low_calls" widget="statinfo" string="Low Priority"/>
+                                    </button>
+                                </group>
+                            </page>
+                            <page string="Performance Metrics">
+                                <group>
+                                    <group string="Response Times">
+                                        <field name="avg_response_time"/>
+                                        <field name="avg_resolution_time"/>
+                                        <field name="first_call_resolution_rate" widget="percentage"/>
+                                    </group>
+                                    <group string="SLA Compliance">
+                                        <field name="sla_success_rate" widget="percentage"/>
+                                        <field name="calls_within_sla"/>
+                                        <field name="calls_breached_sla"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Technician Performance">
+                                <field name="technician_performance_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="state"/>
+                                        <field name="call_count"/>
+                                        <field name="active_call_count"/>
+                                        <field name="rating" widget="progressbar"/>
+                                        <field name="avg_resolution_time"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Service Areas">
+                                <field name="area_performance_ids">
+                                    <tree>
+                                        <field name="area_name"/>
+                                        <field name="pincode"/>
+                                        <field name="city"/>
+                                        <field name="state"/>
+                                        <field name="priority"/>
+                                        <field name="technician_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Recent Activities">
+                                <field name="recent_call_ids">
+                                    <tree limit="20">
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <field name="technician_id"/>
+                                        <field name="priority" widget="priority"/>
+                                        <field name="state" widget="badge"/>
+                                        <field name="call_date"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group string="Quick Actions" col="4">
+                            <button name="%(action_fsm_call)d" type="action" string="New Service Call" class="btn-primary" icon="fa-plus"/>
+                            <button name="%(action_fsm_technician)d" type="action" string="Manage Technicians" icon="fa-users"/>
+                            <button name="%(action_fsm_claim)d" type="action" string="View Claims" icon="fa-exclamation-triangle"/>
+                            <button name="action_refresh_dashboard" type="object" string="Refresh" icon="fa-refresh"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Pivot View for Analysis -->
+        <record id="view_fsm_call_pivot" model="ir.ui.view">
+            <field name="name">fsm.call.pivot</field>
+            <field name="model">fsm.call</field>
+            <field name="arch" type="xml">
+                <pivot string="Service Call Analysis">
+                    <field name="technician_id" type="row"/>
+                    <field name="state" type="col"/>
+                    <field name="priority" type="col"/>
+                </pivot>
+            </field>
+        </record>
+        
+        <!-- Graph View for Trends -->
+        <record id="view_fsm_call_graph" model="ir.ui.view">
+            <field name="name">fsm.call.graph</field>
+            <field name="model">fsm.call</field>
+            <field name="arch" type="xml">
+                <graph string="Service Call Trends" type="line">
+                    <field name="call_date" interval="day"/>
+                    <field name="state" type="col"/>
+                </graph>
+            </field>
+        </record>
+        
+        <!-- Dashboard Menu Action -->
+        <record id="action_fsm_dashboard_menu" model="ir.actions.act_window">
+            <field name="name">Dashboard</field>
+            <field name="res_model">fsm.call</field>
+            <field name="view_mode">graph,pivot,tree</field>
+            <field name="view_id" ref="view_fsm_call_graph"/>
+            <field name="context">{
+                'search_default_this_month': 1,
+                'group_by': ['call_date:month', 'state']
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No service calls to analyze
+                </p>
+                <p>
+                    Start creating service calls to see analytics and trends.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

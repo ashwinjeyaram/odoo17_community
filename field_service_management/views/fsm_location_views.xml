@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- FSM State Tree View -->
+        <record id="view_fsm_state_tree" model="ir.ui.view">
+            <field name="name">fsm.state.tree</field>
+            <field name="model">fsm.state</field>
+            <field name="arch" type="xml">
+                <tree string="States">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="country_id"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- FSM State Form View -->
+        <record id="view_fsm_state_form" model="ir.ui.view">
+            <field name="name">fsm.state.form</field>
+            <field name="model">fsm.state</field>
+            <field name="arch" type="xml">
+                <form string="State">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                            </group>
+                            <group>
+                                <field name="country_id"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Districts">
+                                <field name="district_ids" context="{'default_state_id': id}">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- FSM State Search View -->
+        <record id="view_fsm_state_search" model="ir.ui.view">
+            <field name="name">fsm.state.search</field>
+            <field name="model">fsm.state</field>
+            <field name="arch" type="xml">
+                <search string="Search States">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_country" string="Country" context="{'group_by': 'country_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- FSM State Action -->
+        <record id="action_fsm_state" model="ir.actions.act_window">
+            <field name="name">States</field>
+            <field name="res_model">fsm.state</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_state_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+        
+        <!-- FSM District Tree View -->
+        <record id="view_fsm_district_tree" model="ir.ui.view">
+            <field name="name">fsm.district.tree</field>
+            <field name="model">fsm.district</field>
+            <field name="arch" type="xml">
+                <tree string="Districts">
+                    <field name="name"/>
+                    <field name="state_id"/>
+                    <field name="code"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- FSM District Form View -->
+        <record id="view_fsm_district_form" model="ir.ui.view">
+            <field name="name">fsm.district.form</field>
+            <field name="model">fsm.district</field>
+            <field name="arch" type="xml">
+                <form string="District">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="state_id"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Pincodes">
+                                <field name="pincode_ids" context="{'default_district_id': id}">
+                                    <tree editable="bottom">
+                                        <field name="pincode"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- FSM District Search View -->
+        <record id="view_fsm_district_search" model="ir.ui.view">
+            <field name="name">fsm.district.search</field>
+            <field name="model">fsm.district</field>
+            <field name="arch" type="xml">
+                <search string="Search Districts">
+                    <field name="name"/>
+                    <field name="state_id"/>
+                    <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- FSM District Action -->
+        <record id="action_fsm_district" model="ir.actions.act_window">
+            <field name="name">Districts</field>
+            <field name="res_model">fsm.district</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_district_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+        
+        <!-- FSM Pincode Tree View -->
+        <record id="view_fsm_pincode_tree" model="ir.ui.view">
+            <field name="name">fsm.pincode.tree</field>
+            <field name="model">fsm.pincode</field>
+            <field name="arch" type="xml">
+                <tree string="Pincodes">
+                    <field name="pincode"/>
+                    <field name="district_id"/>
+                    <field name="state_id"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- FSM Pincode Form View -->
+        <record id="view_fsm_pincode_form" model="ir.ui.view">
+            <field name="name">fsm.pincode.form</field>
+            <field name="model">fsm.pincode</field>
+            <field name="arch" type="xml">
+                <form string="Pincode">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="pincode"/>
+                                <field name="district_id"/>
+                                <field name="state_id"/>
+                            </group>
+                            <group>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Areas">
+                                <field name="area_ids" context="{'default_pincode_id': id}">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="active"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- FSM Pincode Search View -->
+        <record id="view_fsm_pincode_search" model="ir.ui.view">
+            <field name="name">fsm.pincode.search</field>
+            <field name="model">fsm.pincode</field>
+            <field name="arch" type="xml">
+                <search string="Search Pincodes">
+                    <field name="pincode"/>
+                    <field name="district_id"/>
+                    <field name="state_id"/>
+                    <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state_id'}"/>
+                        <filter name="group_by_district" string="District" context="{'group_by': 'district_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- FSM Pincode Action -->
+        <record id="action_fsm_pincode" model="ir.actions.act_window">
+            <field name="name">Pincodes</field>
+            <field name="res_model">fsm.pincode</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_pincode_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+        
+        <!-- FSM Area Tree View -->
+        <record id="view_fsm_area_tree" model="ir.ui.view">
+            <field name="name">fsm.area.tree</field>
+            <field name="model">fsm.area</field>
+            <field name="arch" type="xml">
+                <tree string="Areas">
+                    <field name="name"/>
+                    <field name="pincode_id"/>
+                    <field name="district_id"/>
+                    <field name="state_id"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- FSM Area Form View -->
+        <record id="view_fsm_area_form" model="ir.ui.view">
+            <field name="name">fsm.area.form</field>
+            <field name="model">fsm.area</field>
+            <field name="arch" type="xml">
+                <form string="Area">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="pincode_id"/>
+                            </group>
+                            <group>
+                                <field name="district_id"/>
+                                <field name="state_id"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- FSM Area Search View -->
+        <record id="view_fsm_area_search" model="ir.ui.view">
+            <field name="name">fsm.area.search</field>
+            <field name="model">fsm.area</field>
+            <field name="arch" type="xml">
+                <search string="Search Areas">
+                    <field name="name"/>
+                    <field name="pincode_id"/>
+                    <field name="district_id"/>
+                    <field name="state_id"/>
+                    <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state_id'}"/>
+                        <filter name="group_by_district" string="District" context="{'group_by': 'district_id'}"/>
+                        <filter name="group_by_pincode" string="Pincode" context="{'group_by': 'pincode_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- FSM Area Action -->
+        <record id="action_fsm_area" model="ir.actions.act_window">
+            <field name="name">Areas</field>
+            <field name="res_model">fsm.area</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_fsm_area_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+    </data>
+</odoo>
